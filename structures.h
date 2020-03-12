@@ -3,6 +3,7 @@
 #include<unistd.h>
 #include<string.h>
 
+#define FRAME_SIZE 1024
 #define NO_OF_FRAMES 32768
 #define PAGE_SIZE 1024
 
