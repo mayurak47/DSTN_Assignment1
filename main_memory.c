@@ -13,11 +13,7 @@ page_table_struct* mm_get_page_table(page_table_struct* page_table, main_memory_
 int mm_get_free_frame(main_memory_struct** main_memory);
 int mm_new_page_table(int pid, logical_address la, main_memory_struct** main_memory);
 int mm_load_page(int pid, logical_address la, main_memory_struct** main_memory);
-int mm_replace_page(main_memory_struct** main_memory);
 void mm_invalidate_page_table_entries(logical_address page_no, int outer_frame_no, main_memory_struct *main_memory);
-void mm_write_to_disk(int frame_no, main_memory_struct **main_memory);
-void mm_write_to_mm(int physical_address, main_memory_struct **main_memory, char *data);
-logical_address mm_convert(int address);
 int mm_convert_back(logical_address la);
 int mm_check_dirty_bit(int frame_no, main_memory_struct *main_memory);
 
