@@ -25,3 +25,10 @@ All files in the directory:<br>
       - print_frame_table
       - print_page_table
       - convert_logical_address
+
+##COMPILING THE PROGRAM<br>
+Execute the makefile given to compile all .c files<br>
+Command : make<br><br>
+
+##EXECUTING THE PROGRAM<br>
+Command : ./test APSI.txt CC1.txt LI.txt M88KSIM.txt VORTEX.txt<br>
