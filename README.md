@@ -7,4 +7,5 @@ Mayur Arvind<br>
 Amol Pai<br>
 Ritvik Agarwal<br>
 
-All .c files:
+All files in the directory:<br>
+<ul>main_memory_structures.h : Contains the data structures required for main memory. <br><\t> Data structures included are : <br><\t><\t>
