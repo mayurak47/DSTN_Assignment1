@@ -137,25 +137,29 @@ void mm_prefetch_pages(int pid, FILE* process, main_memory_struct** main_memory)
     //Get the pointer to outer page table from the frame table.
     page_table_struct *outer_page_table = (*main_memory)->frame_table.frame_entry[outer_pt_frame_no].page_pointer;
 
+    int prefetch_pages = 0;
+
     //Prefetch two pages.
-    for(int i=0; i<2; i++){
+    while(!feof(process)){
         int n;
         fscanf(process, "%x", &n);
         logical_address la = mm_convert(n);
 
-        //Get a new middle and inner page table for the given logical address. 
-        //This will result in a page fault but as it is prefetching, it will not result in increasing the number of page faults.
-        int middle_pt_frame_no = mm_new_page_table(pid, la, main_memory);
-        int inner_pt_frame_no = mm_new_page_table(pid, la, main_memory);
-        int frame_no = mm_load_page(pid, la, main_memory);
-
-        page_table_struct* middle_page_table = (*main_memory)->frame_table.frame_entry[middle_pt_frame_no].page_pointer;
-        page_table_struct* inner_page_table = (*main_memory)->frame_table.frame_entry[inner_pt_frame_no].page_pointer;
         
-        //Update each of the page tables with the corresponding link to the next page table.
-        mm_update_page_table(&outer_page_table, la.outer_pt, middle_pt_frame_no);
-        mm_update_page_table(&middle_page_table, la.middle_pt, inner_pt_frame_no);
-        mm_update_page_table(&inner_page_table, la.inner_pt, frame_no);
+        int frame_no;
+        int count = 0;
+        
+        //Search for the logical address in the page tables
+        while((frame_no = mm_search_page_table(la, pid, main_memory)) == -1){
+            count++;
+        }
+
+        //If count > 0, the logical address resulted in a page fault and thus, it was prefetched in the main memory. Thus, increase the number of prefetched pages.
+        if(count>0)
+            prefetch_pages++;
+        
+        if(prefetch_pages == REQUIRED_PREFETCHED_PAGES)
+            break;
 
     }
 

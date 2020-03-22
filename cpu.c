@@ -28,7 +28,9 @@ int main(int argc, char* argv[]){
 
     for(int i=0; i<NUM_PROCESSES; i++){
         mm_initialize_page_table(pid[i], &main_memory);
+        mm_prefetch_pages(pid[i], process[i], &main_memory);
     }
+
 
     int page_hit[NUM_PROCESSES] = {0};
     int page_fault[NUM_PROCESSES] = {0};
@@ -90,72 +92,4 @@ int main(int argc, char* argv[]){
         printf("Process %d : page fault rate = %f\n", i+1, page_fault_rate[i]);
     }
     printf("\n");
-
-
-    // FILE* process1, *process2;
-    // process1 = fopen("APSI.txt", "r");
-    // process2 = fopen("CC1.txt", "r");
-
-    // int pid1 = 400;
-    // mm_initialize_page_table(pid1, &main_memory);
-
-    // int pid2 = 500;
-    // mm_initialize_page_table(pid2, &main_memory);
-
-    // printf("\n\n\n-----------------------Process 1----------------------\n\n\n");
-    // for(int i=0; i<20000; i++){
-    //     int n;
-    //     fscanf(process1, "%x", &n); 
-    //     printf("%d address = %x\n", i, n);
-    //     logical_address la = mm_convert(n);
-    //     int frame_no;
-    //     while((frame_no = mm_search_page_table(la, pid1, &main_memory)) == -1);
-    //     printf("Frame no = %d\n\n", frame_no);
-
-    // }
-
-// //    mm_print_frame_table(main_memory->frame_table);
-
-//     printf("\n\n\n-----------------------Process 2----------------------\n\n\n");
-//     for (int i=0; i<20000; i++)
-//     {
-//         int n;
-//         fscanf(process2, "%x", &n);
-//         printf("%x\n", n);
-//         logical_address la = mm_convert(n);
-//         int frame_no;
-//         while((frame_no = mm_search_page_table(la, pid2, &kernel, &main_memory)) == -1);
-//         printf("Frame no = %d\n\n", frame_no);
-//     }
-
-    // printf("\n\n\n-----------------------Process 3----------------------\n\n\n");
-    // for(int i=0; i<20000; i++){
-    //     int n;
-    //     fscanf(process3, "%x", &n); 
-    //     printf("%d address = %x\n", i, n);
-    //     logical_address la = mm_convert(n);
-    //     int frame_no;
-    //     while((frame_no = mm_search_page_table(la, pid3, &kernel, &main_memory)) == -1);
-    //     printf("Frame no = %d\n\n", frame_no);
-
-    // }
-
-    // printf("\n\n\n-----------------------Process 1----------------------\n\n\n");
-    // for(int i=0; i<20000; i++){
-    //     int n;
-    //     fscanf(process1, "%x", &n); 
-    //     printf("%d address = %x\n", i, n);
-    //     logical_address la = mm_convert(n);
-    //     int frame_no;
-    //     while((frame_no = mm_search_page_table(la, pid1, &kernel, &main_memory)) == -1);
-    //     printf("Frame no = %d\n\n", frame_no);
-
-    // }
-
-    // frame_table_struct frame_table = main_memory->frame_table;
-    // mm_print_frame_table(frame_table);
-
-
-    
-
 }

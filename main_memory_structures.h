@@ -7,6 +7,7 @@
 #define PAGE_SIZE 1024
 #define NO_OF_ENTRIES 512
 #define NUM_PROCESSES 5
+#define REQUIRED_PREFETCHED_PAGES 2
 
 //The logical address which is generated. As virtual address is 32 bits, the logical address is divided into 4 parts
 //Offset, inner, middle and outer bits. Offset = 10 bits (size of 1 page = 1KB). 
