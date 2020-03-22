@@ -9,4 +9,4 @@ Ritvik Agarwal<br>
 
 All files in the directory:<br>
 1. main_memory_structures.h : Contains the data structures required for main memory. <br>
-  - Data structures included are : <br>
+   - Data structures included are : <br>
