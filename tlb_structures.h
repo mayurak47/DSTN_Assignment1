@@ -13,6 +13,7 @@ typedef struct tlb_entry
   unsigned int pid;
   unsigned int page_no:PAGE_NO_BITS;
   unsigned int frame_no:FRAME_NO_BITS;
+  unsigned char counter;
 } tlb_entry;
 
 typedef struct tlb_buffer
