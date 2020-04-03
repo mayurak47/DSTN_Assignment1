@@ -49,10 +49,26 @@ void context_switch(kernel_struct* kernel, int pid){
     }
 }
 
+int rand50() 
+{ 
+    // rand() function will generate odd or even 
+    // number with equal probability. If rand() 
+    // generates odd number, the function will 
+    // return 1 else it will return 0. 
+    return rand() & 1; 
+} 
+  
+// Random Function to that returns 1 with 75% 
+// probability and 0 with 25% probability using 
+// Bitwise OR 
+bool rand75() 
+{ 
+    return rand50() | rand50(); 
+} 
+
 //Returns 0 25% of the time and 1 75% of the time
 int check_cpu_write(){
-    int n = rand() & 1;
-    return n | n;
+    return rand75();
 }
 
 
