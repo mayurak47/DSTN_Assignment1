@@ -23,7 +23,7 @@ Main memory - Number of frames = 32768. Size of page = 1KB. Hierarchical paging 
 1. main_memory_structures.h : Contains the data structures required for main memory. <br>
    - Data structures included are : page_table, frame_table, free_frames_list, main_memory, pcb, kernel, logical_address <br>
 
-2. tlb_structures.h :
+2. tlb_structures.h : Contains data structures required for the TLB. tlb_entry defines a single entry in the TLB, whose fields are a valid bit, a pid identifier, page no, frame no and a counter for replacement. tlb_buffer describes the entire TLB, with 32 instances of tlb_entry.
 
 3. l1_structures.h :
 
