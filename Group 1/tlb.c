@@ -70,8 +70,8 @@ void tlb_store_mapping(tlb_buffer *tlb, unsigned int pid, unsigned int virtual_a
   tlb->entries[entry_num].pid = pid;
   tlb->entries[entry_num].page_no = page_no;
   tlb->entries[entry_num].frame_no = frame_no;
-  tlb_right_shift_all(tlb);
-  tlb->entries[entry_num].counter |= 0b10000000;
+//   tlb_right_shift_all(tlb);
+//   tlb->entries[entry_num].counter |= 0b10000000;
 }
 
 // If mapping exists, update counter values and return frame no.
