@@ -3,8 +3,6 @@
 #include <time.h>
 #define ENTRIES 64
 #define L1_BLOCK 16
-#define DEBUG 0
-#define LOG 0
 #define NO_OF_L1_WAYS 4
 
 typedef struct 
