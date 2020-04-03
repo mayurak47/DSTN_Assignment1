@@ -1,6 +1,5 @@
 #include "functions.h"
 
-short l1_getAddressFromTLB();
 void l1_fill(char *arr, int size, int value);
 void l1_BinaryRepInt(int n);
 void l1_BinaryRepShort(short n);
@@ -13,31 +12,7 @@ int l1_LRU_victimBlock(int index);
 void l1_printLRUBits(int index);
 void l1_LRU_Update(int index, char wayPrediction);
 void l1_getBlockFromL2(int TLBaddress);
-void l1_spaceRemover(char *s);
 int l1_comparator(int TLBaddress, char wayPrediction, int index);
-
-
-short l1_getAddressFromTLB() //getting address from TLB
-{
-	return 0;
-}
-
-void l1_spaceRemover(char *s)
-{
-	char *d = s;
-	while (*d!=0)
-	{
-		if (*d==' ')
-		{
-			d++;
-			continue;
-		}
-		*s = *d;
-		s++;
-		d++;
-	}
-	*s = *d;
-}
 
 
 void l1_fill(char *arr, int size, int value)
@@ -83,22 +58,52 @@ int l1_or_array(char *arr, int size)
 	return ans;
 }
 
+/*
+    Input of function - physical address.
+    Purpose of the function - to calculate the index for l1.
+    Output/Result of function - index.
+*/
+int l1_get_index(int TLBaddress){
+	int index = TLBaddress & 0x3f0 >> 4;
+	return index;
+}
 
+/*
+    Input of function - physical address.
+    Purpose of the function - to calculate the offset for l1.
+    Output/Result of function - offset.
+*/
+int l1_get_offset(int TLBaddress){
+	int offset = TLBaddress & 0xf;
+	return offset;
+}
+
+/*
+    Input of function - physical address.
+    Purpose of the function - to calculate the tag bits from the physical address.
+    Output/Result of function - tag bits.
+*/
+short l1_TLBtoFrame(int TLBaddress)
+{
+	short framebits = TLBaddress >> 10;
+	return framebits;
+}
+
+
+/*
+    Input of function - A row of L1 Cache
+    Purpose of the function - Initialize the row of the L1 Cache.
+    Output/Result of function - Initialized row to zero.
+*/
 void L1_row_initialize(L1_row *L1row)
 {
 	l1_fill((char *)L1row, sizeof(*L1row),0);
 }
 
-void l1_initialize()
-{
-	l1 = malloc(sizeof(L1_struct));
-	for (int i =0; i<ENTRIES; i++)
-	{
-		L1_row_initialize(&(l1->L1row[i]));
-		l1->L1row[i].wayPrediction = '\0';
-	}
-}
-
+/*
+    Purpose of the function - Initialize L1 Instruction Cache.
+    Output/Result of function - L1 Instruction Cache Initialized to all zeroes.
+*/
 L1_struct* l1_instruction_initialize(){
 	L1_struct* l1_instruction = malloc(sizeof(L1_struct));
 	for (int i =0; i<ENTRIES; i++)
@@ -108,6 +113,10 @@ L1_struct* l1_instruction_initialize(){
 	return l1_instruction;
 }
 
+/*
+    Purpose of the function - Initialize L1 Data Cache.
+    Output/Result of function - L1 Data Cache Initialized to all zeroes.
+*/
 L1_struct* l1_data_initialize(){
 	L1_struct* l1_data = malloc(sizeof(L1_struct));
 	for (int i =0; i<ENTRIES; i++)
@@ -136,12 +145,20 @@ void l1_checkInitialization()
 	}
 }
 
-short l1_TLBtoFrame(int TLBaddress)
+void l1_getBlockFromL2(int TLBaddress)
 {
-	short framebits = TLBaddress >> 10;
-	return framebits;
+	srand(time(0));
+	for (int i=0; i<L1_BLOCK; i++)
+		bus16B[i] = rand();
 }
 
+
+
+/*
+    Input of function - index of a row in cache
+    Purpose of the function - to find the lru block in l1 cache
+    Output/Result of function - lru block way number
+*/
 int l1_LRU_victimBlock(int index)
 {
 	short lruBits = l1->L1row[index].LRUBits;
@@ -160,14 +177,13 @@ void l1_printLRUBits(int index)
 	l1_BinaryRepShort(l1->L1row[index].LRUBits);
 }
 
+
+/*
+    Input of function - index of the cache and way number of the hit block.
+    Purpose of the function - make the row bits for the way number all 1's and column bits for way number all 0's.
+*/
 void l1_LRU_Update(int index, char wayPrediction)  //on hit
 {
-	if (DEBUG) 
-	{
-		// printf("wayPrediction : %d\n", wayPrediction);
-		printf("lruBits : before update\n");	
-		l1_printLRUBits(index);
-	}
 	switch(wayPrediction)
 	{
 		case 0:
@@ -187,20 +203,13 @@ void l1_LRU_Update(int index, char wayPrediction)  //on hit
 			l1->L1row[index].LRUBits &= 0b1110111011101110;
 			break;
 	}
-	if (DEBUG) 
-	{
-		printf("lruBits : after update\n");
-		l1_printLRUBits(index);
-	}
 }
 
-void l1_getBlockFromL2(int TLBaddress)
-{
-	srand(time(0));
-	for (int i=0; i<L1_BLOCK; i++)
-		bus16B[i] = rand();
-}
-
+/*
+    Input of function - physical_address and data to write into l1.
+    Purpose of the function - writing data to l1.
+    Output/Result of function - data written to l1 cache and added block on bus for write through to l2.
+*/
 void l1_write_to_l1(int physical_address, char data){
 	int index = l1_get_index(physical_address);
 	int offset = l1_get_offset(physical_address);
@@ -217,12 +226,18 @@ void l1_write_to_l1(int physical_address, char data){
 	return;
 }
 
+
 void l1_print_cache(L1_struct *l1){
 	for(int i=0; i<ENTRIES; i++){
 		printf("index = %d, wayprediction = %d\n", i, l1->L1row[i].wayPrediction);
 	}
 }
 
+/*
+    Input of function - physical_address and index to handle cache miss.
+    Purpose of the function - getting data from bus16B which has the data from l2.
+    Output/Result of function - bus data is written in the repective row and lru block.
+*/
 void l1_cacheMiss(int TLBaddress, int index)
 {
 	short framebits = l1_TLBtoFrame(TLBaddress);
@@ -230,7 +245,6 @@ void l1_cacheMiss(int TLBaddress, int index)
 	l1_getBlockFromL2(TLBaddress);
 	//In the cpu driver code, we call l2_read_to_l1 function which transfers the data on bus16B. So no need to call this function.
 	int victimBlock = l1_LRU_victimBlock(index);
-	if (DEBUG) printf("victimBlock : %d\n", victimBlock);
 	l1->L1row[index].valid_Tag[victimBlock] = framebits;
 	for (int i =0; i<L1_BLOCK; i++)
 	{
@@ -240,7 +254,11 @@ void l1_cacheMiss(int TLBaddress, int index)
 }
 
 
-
+/*
+    Input of function - physical_address and way number and index to indentify a particular block in l1.
+    Purpose of the function - check if that block has the data or not.
+    Output/Result of function - if data present return way number.
+*/
 int l1_comparator(int TLBaddress, char wayPrediction, int index)
 {
 	short frameBits = l1_TLBtoFrame(TLBaddress);
@@ -276,16 +294,11 @@ int l1_comparator(int TLBaddress, char wayPrediction, int index)
 }
 
 
-int l1_get_index(int TLBaddress){
-	int index = TLBaddress & 0x3f0 >> 4;
-	return index;
-}
-
-int l1_get_offset(int TLBaddress){
-	int offset = TLBaddress & 0xf;
-	return offset;
-}
-
+/*
+    Input of function - physical_address and index and offset.
+    Purpose of the function - search cache for hit or miss.
+    Output/Result of function - if miss return 0, else return data.
+*/
 char l1_search_cache(int TLBaddress, int index, int offset)
 {
 	int return_comparator;
@@ -296,107 +309,28 @@ char l1_search_cache(int TLBaddress, int index, int offset)
 	if (return_comparator >= 0)
 	{
 		// cache hit
-		if (DEBUG) printf("Cache Hit on way Prediction : %d\n", l1->L1row[index].wayPrediction);
-		if (LOG) printf("Cache Hit\n");
 		return  l1->L1row[index].data[L1_BLOCK*return_comparator + offset];
 	}
-	if (DEBUG) printf("Cache Miss on Way Prediction : %d\n",l1->L1row[index].wayPrediction);
 
 	// checks done in parallel in hardware
 	return_comparator = l1_comparator(TLBaddress, (l1->L1row[index].wayPrediction+1)%4, index);
 	if (return_comparator >= 0)
 	{
 		// cache hit
-		if (DEBUG) printf("Cache Hit after Way Prediction : %d\n", (l1->L1row[index].wayPrediction+1)%4);
-		if (LOG) printf("Cache Hit\n");
 		return  l1->L1row[index].data[L1_BLOCK*return_comparator + offset];
 	}
 	return_comparator = l1_comparator(TLBaddress, (l1->L1row[index].wayPrediction+2)%4, index);
 	if (return_comparator >= 0)
 	{
 		// cache hit
-		if (DEBUG) printf("Cache Hit after Way Prediction : %d\n", (l1->L1row[index].wayPrediction+2)%4);
-		if (LOG) printf("Cache Hit\n");
 		return  l1->L1row[index].data[L1_BLOCK*return_comparator + offset];
 	}
 	return_comparator = l1_comparator(TLBaddress, (l1->L1row[index].wayPrediction+3)%4, index);
 	if (return_comparator >= 0)
 	{
 		// cache hit
-		if (DEBUG) printf("Cache Hit after Way Prediction : %d\n", (l1->L1row[index].wayPrediction+3)%4);
-		if (LOG) printf("Cache Hit\n");
 		return  l1->L1row[index].data[L1_BLOCK*return_comparator + offset];
 	}
 
-	// cache miss
-	if(DEBUG) printf("Complete Cache Miss\n");
-	// if (LOG) printf("Cache miss\n");
-	// l1_cacheMiss(TLBaddress, index);
-	// l1_search_cache(TLBaddress, index, offset);
 	return 0;
 }
-
-
-
-// int main()   //main for testing
-// {
-	
-// 	printf("sizeof cache: %ld\n", sizeof(L1_struct));
-// 	printf("sizeof row : %ld\n", sizeof(l1->L1row[0]));
-// 	l1_initialize();
-
-// 	FILE * fp = fopen("M88KSIM.txt", "r");
-// 	char input[50];
-// 	while (fgets(input, 50, fp)!=NULL)
-// 	{
-// 		// printf("%s", input);
-// 		l1_spaceRemover(input);
-// 		int tlbaddress =strtol(input, NULL, 16); 
-// 		// tlbaddress = tlbaddress & 0b00000001111111111111111111111111;
-// 		// int tlbaddress =strtol(input, NULL, 2); 
-// 		// printf("%x\n", tlbaddress);
-// 		int offset = tlbaddress & 0b00000000000000000000000000001111; 
-// 		int index = (tlbaddress & 0b00000000000000000000001111110000) >> 4;
-// 		char data;
-// 		data = l1_search_cache(tlbaddress, index, offset);
-// 		if(data == '\0'){
-// 			// printf("Cache miss\n");
-// 			l1_cacheMiss(tlbaddress, index);
-// 		}
-// 		else{
-// 			// printf("Cache hit\n");
-// 		}
-// 	}
-// 	// checkInitialization();
-// 	// printf("Total Cache Hits: %d\n", cacheHitCount);
-// 	// printf("Total Cache Miss: %d\n", cacheMissCount);
-// 	// printf("Hit ratio : %f\n", (float)(cacheHitCount)/(cacheHitCount + cacheMissCount));
-// }
-
-
-// hit rates when run on address 
-// APSI.txt
-// Total Cache Hits: 54605
-// Total Cache Miss: 2285
-// Hit ratio : 0.959835
-
-
-// CC1.txt
-// Total Cache Hits: 223342
-// Total Cache Miss: 7804
-// Hit ratio : 0.966238
-
-// LI.txt
-// Total Cache Hits: 90587
-// Total Cache Miss: 7550
-// Hit ratio : 0.923067
-
-// M88KSIM.txt
-// Total Cache Hits: 30563
-// Total Cache Miss: 8840
-// Hit ratio : 0.775652
-
-// VORTEX.txt
-// Total Cache Hits: 12225
-// Total Cache Miss: 1089
-// Hit ratio : 0.918206
