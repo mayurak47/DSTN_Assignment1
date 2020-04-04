@@ -222,7 +222,7 @@ void l2_initialize() {
 
 //Before terminating, the modified data in L2 cache should be written 
 //back to MM to prevent loss of data.
-void l2_terminate() {
+void l2_flush_l2_cache() {
 	for(int i=0;i<SETS;i++) {
 		for(int j=0;j<NO_OF_L2_WAYS;j++) {
 			if(l2->l2_sets[i].l2_entries[j].dirty==1) {

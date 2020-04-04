@@ -39,10 +39,12 @@ Main memory - Number of frames = 32768. Hierarchical paging with three level pag
 
 2. tlb_structures.h : Contains data structures required for the TLB. tlb_entry defines a single entry in the TLB, whose fields are a valid bit, a pid identifier, page no, frame no and a counter for replacement. tlb_buffer describes the entire TLB, with 32 instances of tlb_entry.
 
-3. l1_structures.h :
+3. l1_structures.h :	
 
-4. l2_structures.h :
-
+4. l2_structures.h : Contains the data structures required for L2 cache.
+					 l2_entry consists of valid bit, dirty bit, tag field and data(32B). l2_set consists of 8 l2_entries(8 way set associative).
+					 counter_lru is used for implementing LRU counter replacement policy.
+					 
 5. global_variables.h : It contains the various global variables which are used in different programs. It contains pointers to tlb, l1, l2 and main memory. It also contains the buses between l1-l2 and l2-main memory. It also contains the hit and miss counts of tlb, l1, l2 and main memory.
 
 6. functions.h : It contains the declaration of all the functions defined in different programs. These contain the functions of tlb, l1, l2, main memory and the kernel.

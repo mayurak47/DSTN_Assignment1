@@ -20,6 +20,7 @@ extern void l1_print_cache(L1_struct *l1);
 extern void l2_read_to_l1(int physical_address, int wayNo);
 extern void l2_write_from_l1_to_l2(int physical_address);
 extern void l2_initialize();
+extern void l2_flush_l2_cache();
 extern int l2_search_cache(int physical_address);
 extern int l2_service_cache_miss(int physical_address);
 extern void l2_clear_l2(l2_cache *l2);
