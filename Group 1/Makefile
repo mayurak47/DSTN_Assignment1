@@ -21,4 +21,4 @@ main_memory.o: main_memory.c
 	gcc -c main_memory.c
 
 clean:
-	rm -f *.o test
+	rm -f *.o test l1 l2_cache main_memory tlb

@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
     //We will be finding the total time taken to execute all process
     total_access_time = 0;
 
-    int total_instructions_executed = 0;
+    int total_instructions_executed = 1;
 
     int i=0;
     int count = 1;
@@ -91,6 +91,7 @@ int main(int argc, char* argv[]){
 
         //If the process has executed its fixed number of instructions, then context switch to another process.
         if(total_instructions_executed%NUMBER_OF_INSTRUCTIONS_FOR_CONTEXT_SWITCH == 0){
+            fprintf(output_file, "\t\t\t\t\t\t\t\t\t\t\tProcess needs to be swapped out\t\t\t\t\t\t\n");
             i = (i+1)%NUM_PROCESSES;
             context_switch(kernel, pid[i]);
         }
@@ -151,8 +152,8 @@ int main(int argc, char* argv[]){
             i = (i+1)%NUM_PROCESSES;
             context_switch(kernel, pid[i]);
             total_access_time += context_switch_time;
-            continue;
         }
+
         total_instructions_executed ++;
 
     }
