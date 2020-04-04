@@ -7,7 +7,7 @@ Mayur Arvind - 2016B1A70603G<br>
 Amol Pai - 2017A7PS0038G<br>
 Ritvik Agarwal - 2017A7PS0136G<br>
 
-##CONTRIBUTION OF EACH MEMBER:<br>
+## CONTRIBUTION OF EACH MEMBER:<br>
 Kevin Boban - Implementation of L2 cache and functions<br>
 Mayur Arvind - Implementation of TLB and its functions<br>
 Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program<br>
