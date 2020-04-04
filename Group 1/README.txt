@@ -12,8 +12,8 @@ Aboli Pai (2017A7PS0147G)
 Anurag Madnawat (2017A7PS1923G)
 
  CONTRIBUTION OF EACH MEMBER:
-Kevin Boban - Implementation of L2 cache and functions
-Mayur Arvind - Implementation of TLB and its functions
+Kevin Boban - Implementation of L2 cache structures and functions
+Mayur Arvind - Implementation of TLB structures and functions
 Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program
 Ritvik Agarwal - Implementation of L1 cache and functions
 
@@ -107,3 +107,8 @@ Whether it is a tlb miss, tlb hit, l1 miss, l1 hit, l2 miss, l2 hit, page hit or
 Whether the cpu is writing to l1 or not.
 
 The output file also contains a line when the process gets terminated.
+
+COMPLETION OF ASSIGNMENT:
+	We have completed all the required tasks asked in the question that we know of. 
+	We have also tried our level best to debug our code and eliminate them.
+	The code does not contain any compile time errors, run time errors or bugs.
