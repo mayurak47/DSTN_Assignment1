@@ -9,6 +9,7 @@
 
 #define DATA_REQUEST 0
 #define INSTRUCTION_REQUEST 1   
+#define NUMBER_OF_INSTRUCTIONS_FOR_CONTEXT_SWITCH 500
 
 char bus16B[L1_BLOCK]; //Bus between L1 and L2
 char bus32B[L2_BLOCK]; //Bus between L2 and main memory

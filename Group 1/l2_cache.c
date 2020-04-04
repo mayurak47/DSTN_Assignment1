@@ -161,7 +161,7 @@ void l2_initialize() {
 			l2->l2_sets[i].l2_entries[j].tag = 0;
 			
 			for(int k=0;k<L2_BLOCK;k++)
-				l2->l2_sets[i].l2_entries[j].data[k] = '0';
+				l2->l2_sets[i].l2_entries[j].data[k] = rand()%26 + 65;
 			l2->l2_sets[i].l2_entries[j].data[L2_BLOCK+1] = '\0';
 				
 			l2_lru_counter.lru_sets[i].lru_bits[j]=0;

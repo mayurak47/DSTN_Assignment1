@@ -64,7 +64,7 @@ int l1_or_array(char *arr, int size)
     Output/Result of function - index.
 */
 int l1_get_index(int TLBaddress){
-	int index = TLBaddress & 0x3f0 >> 4;
+	int index = TLBaddress & 0x3f0 >> L1_OFFSET;
 	return index;
 }
 

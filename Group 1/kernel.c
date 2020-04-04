@@ -104,9 +104,10 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
     //Indexing of cache and searching of tlb is done in parallel.
     frame_no = tlb_search(tlb, pid, address);
-
     int index = l1_get_index(address);
     int offset = l1_get_offset(address);
+
+    total_access_time += max(tlb_lookup_time, l1_cache_indexing_time);
     
     //If it is a tlb miss, then we search in the main memory.
     if(frame_no == -1){
@@ -139,7 +140,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
     //If it is already a tlb hit, we search the L1 and L2 cache for the data.
     else{
         tlb_hit[process_executing]++;
-        fprintf(output_file, "TLB Hit | Frame no = %d | ", frame_no);
+        fprintf(output_file, "TLB Hit  | Frame no = %d | ", frame_no);
 
         //Generating the physical address from the frame number.
         int physical_address;
@@ -167,7 +168,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
             }
             else{
                 //If it is a l2 hit, then data will need to be transferred to bus16B so that it can be sent to L1.
-                fprintf(output_file, "L2 hit |\n");
+                fprintf(output_file, "L2 hit  |\n");
                 total_access_time += l2_cache_lookup_time;
                 l2_hit[process_executing]++;
             }
@@ -181,7 +182,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
         //If it is a l1 hit, the data will not be null and will be directly sent to the cpu.
         else{
-            fprintf(output_file, "L1 hit |");
+            fprintf(output_file, "L1 hit  | ");
             l1_hit[process_executing]++;
 
             char cpu_data = 'x';

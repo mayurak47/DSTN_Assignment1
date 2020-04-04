@@ -7,6 +7,9 @@
 #define ENTRIES 64
 #define L1_BLOCK 16
 #define NO_OF_L1_WAYS 4
+#define L1_OFFSET 4
+#define L1_INDEX 6
+#define L1_TAG  15
 
 typedef struct 
 {
