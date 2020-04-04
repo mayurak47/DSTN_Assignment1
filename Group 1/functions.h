@@ -1,3 +1,6 @@
+#ifndef _FUNCTIONS_H_
+#define _FUNCTIONS_H_
+
 #include "global_variables.h"
 
 #define max(x,y) x<y?x:y
@@ -19,6 +22,7 @@ extern void l2_write_from_l1_to_l2(int physical_address);
 extern void l2_initialize();
 extern int l2_search_cache(int physical_address);
 extern int l2_service_cache_miss(int physical_address);
+extern void l2_clear_l2(l2_cache *l2);
 
 //Main memory functions
 extern void mm_print_frame_table(frame_table_struct frame_table);
@@ -49,3 +53,5 @@ extern void context_switch(kernel_struct* kernel, int pid);
 extern void kernel_load_new_process(int pid, FILE* fd, main_memory_struct* main_memory, kernel_struct *kernel);
 extern int check_eof(FILE* process[NUM_PROCESSES]);
 extern int get_request_type(int virtual_address);
+
+#endif

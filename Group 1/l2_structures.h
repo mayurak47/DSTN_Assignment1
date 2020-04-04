@@ -1,3 +1,6 @@
+#ifndef _L2_STRUCTURES_H_
+#define _L2_STRUCTURES_H_
+
 #include <stdio.h>	
 #include <stdlib.h>
 #include <stdbool.h>
@@ -36,3 +39,4 @@ typedef struct {
 	lru_set lru_sets[SETS];
 } counter_lru;
 
+#endif

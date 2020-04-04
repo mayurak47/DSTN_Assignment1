@@ -1,3 +1,6 @@
+#ifndef _L1_STRUCTURES_H_
+#define _L1_STRUCTURES_H_
+
 #include <stdio.h>	
 #include <stdlib.h>
 #include <time.h>
@@ -20,3 +23,5 @@ typedef struct
 {
 	L1_row L1row[ENTRIES];
 }L1_struct;
+
+#endif

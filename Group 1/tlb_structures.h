@@ -1,3 +1,6 @@
+#ifndef _TLB_STRUCTURES_H_
+#define _TLB_STRUCTURES_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,3 +23,5 @@ typedef struct tlb_buffer
 {
   tlb_entry entries[NO_OF_TLB_ENTRIES];
 } tlb_buffer;
+
+#endif

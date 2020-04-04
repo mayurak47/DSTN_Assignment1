@@ -1,3 +1,6 @@
+#ifndef _MAIN_MEMORY_STRUCTURES_H_
+#define _MAIN_MEMORY_STRUCTURES_H_
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
@@ -9,9 +12,10 @@
 #define NUM_PROCESSES 5
 #define REQUIRED_PREFETCHED_PAGES 2
 #define MM_REQUIRED_ACCESSES 8
+#define MIN_NUMBER_OF_PAGES 2
+#define MAX_NUMBER_OF_PAGES 300
 
 //The logical address which is generated. As virtual address is 32 bits, the logical address is divided into 4 parts
-    //tlb_print_tlb(tlb);
 //Offset, inner, middle and outer bits. Offset = 10 bits (size of 1 page = 1KB). 
 //As number of entries in one page table is 256, inner bits = 8, middle bits = 8 and outer bits = 6.
 typedef struct logical_address{
@@ -21,10 +25,12 @@ typedef struct logical_address{
     unsigned int inner_pt:9;
 }logical_address_struct;
 
+//One frame in main memory.
 typedef struct frame{
     char data[PAGE_SIZE/1024];
 }frame;
 
+//Page info structure contains the frame number occupied by the page and the pointer to this page.
 typedef struct page_info{
     unsigned int frame_no:15;
     void* page_pointer;
@@ -74,13 +80,16 @@ typedef struct main_memory_struct{
     free_frames_struct *free_frames_head;
 }main_memory_struct;
 
-
+//The pcb structure contains the valid bit which indicates whether the outer page table is valid or not, the pid of process. the page info of outer page table and the number of pages held by the process.
 typedef struct pcb_struct{
     unsigned int valid:1;
     unsigned int pid;
     page_info outer_page;
+    int number_of_pages;
 }pcb_struct;
 
+
+//The kernel structure which contains the information about the pcb of all processes, the CR3_reg which contains the page information about the outer page table of the currently executing process, the currently executing process and the total number of processes executing in main memory.
 typedef struct kernel_struct{
     page_info CR3_reg;
     int number_of_processes;
@@ -88,3 +97,5 @@ typedef struct kernel_struct{
     unsigned int no_of_references;
     pcb_struct *pcb;
 }kernel_struct;
+
+#endif

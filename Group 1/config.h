@@ -1,3 +1,6 @@
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
+
 #define tlb_lookup_time 1
 #define tlb_miss_OS_overhead 5
 #define l1_cache_indexing_time 1
@@ -16,3 +19,5 @@
 #define page_fault_time 1
 #define restart_overhead_time 1
 #define context_switch_time 1
+
+#endif
