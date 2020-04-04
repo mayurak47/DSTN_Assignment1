@@ -1,5 +1,5 @@
- DSTN_Assignment1
-DSTN Assignment 1 Group 1 and 2
+DSTN ASSIGNMENT 1
+Group 1 and 2
 
  GROUP MEMBERS:
 Kevin Boban - 2016A7PS0185G
