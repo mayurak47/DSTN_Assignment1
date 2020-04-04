@@ -1,7 +1,7 @@
 # DSTN_Assignment1
 DSTN Assignment 1 Group #1 &amp; #2
 
-# GROUP MEMBERS:<br>
+## GROUP MEMBERS:<br>
 Kevin Boban - 2016A7PS0185G<br>
 Mayur Arvind - 2016B1A70603G<br>
 Amol Pai - 2017A7PS0038G<br>
