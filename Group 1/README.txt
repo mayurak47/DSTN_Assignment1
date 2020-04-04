@@ -107,3 +107,8 @@ Whether it is a tlb miss, tlb hit, l1 miss, l1 hit, l2 miss, l2 hit, page hit or
 Whether the cpu is writing to l1 or not.
 
 The output file also contains a line when the process gets terminated.
+
+COMPLETION OF ASSIGNMENT:
+	We have completed all the required tasks asked in the question that we know of. 
+	We have also tried our level best to debug our code and eliminate them.
+	The code does not contain any compile time errors, run time errors or bugs.
