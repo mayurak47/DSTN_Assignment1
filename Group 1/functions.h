@@ -23,6 +23,8 @@ extern void l2_initialize();
 extern int l2_search_cache(int physical_address);
 extern int l2_service_cache_miss(int physical_address);
 extern void l2_clear_l2(l2_cache *l2);
+extern void l2_print_l2_cache_set(int physical_address);
+extern void l2_print_lru_counter_for_set(int physical_address);
 
 //Main memory functions
 extern void mm_print_frame_table(frame_table_struct frame_table);

@@ -7,6 +7,39 @@ void l2_update_lru_counter(int set_index, int mru_block_index);
 void l2_get_block_from_mm(l2_address addr, int victim_block);
 void l2_write_dirty_block_back_to_mm(l2_address l2_addr, int victim_block);
 
+//Function to print cache state for all blocks corresponding to a given index(ie for a set)
+void l2_print_l2_cache_set(int physical_address) {
+	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
+	l2_set set = l2->l2_sets[l2_addr.index];
+	printf("INDEX: 0x%x\n", l2_addr.index);
+	printf("-----------------------------------------------------------------\n");
+	printf("| VALID | DIRTY |   TAG    |\t\tDATA\t\t\t|\n");
+	printf("-----------------------------------------------------------------\n");
+	for(int i=0;i<NO_OF_L2_WAYS;i++) {
+		printf("|   %-1d   |   %-1d   | 0x%-5x  |   %-32s |\n", set.l2_entries[i].valid, set.l2_entries[i].dirty, 
+				set.l2_entries[i].tag, set.l2_entries[i].data);
+	}
+	printf("-----------------------------------------------------------------\n\n");
+}
+
+//Function to print lru counter state for given set
+void l2_print_lru_counter_for_set(int physical_address) {
+	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
+	l2_set set = l2->l2_sets[l2_addr.index];
+	
+	printf("-----------------------------------------------------------------\n");
+	printf("BLOCK: ");
+	for(int i=0;i<NO_OF_L2_WAYS;i++) 
+		printf("%d ", i);
+	
+	printf("\nCOUNT: ");
+	for(int i=0;i<NO_OF_L2_WAYS;i++) 
+		printf("%d ", l2_lru_counter.lru_sets[l2_addr.index].lru_bits[i]);
+	printf("\n-----------------------------------------------------------------\n\n");
+}
+
+//Function to convert physical address into l2_address
+//l2_address: 13 bit tag, 7 bit index, 5 bit offset
 l2_address l2_get_l2_address_from_physical_address(int physical_address) {
 	l2_address l2_addr;
 	l2_addr.offset = (physical_address & 0x001f);
@@ -16,6 +49,8 @@ l2_address l2_get_l2_address_from_physical_address(int physical_address) {
 	return l2_addr;
 }
 
+//Function to convert l2_address into physical address
+//l2_address: 13 bit tag, 7 bit index, 5 bit offsets
 int l2_get_physical_address_from_l2_address(l2_address l2_addr) {
 	int physical_address = 0x0;
 	physical_address |= l2_addr.offset;
@@ -25,6 +60,8 @@ int l2_get_physical_address_from_l2_address(l2_address l2_addr) {
 	return physical_address;
 }
 
+//Function to get victim block for replacement. First search for blocks with valid==0.
+//If no such blocks are found, use lru_counter to get lru block
 int l2_get_victim_block(int set_index) {
 	for(int i=0;i<NO_OF_L2_WAYS;i++) {
 		if(l2->l2_sets[set_index].l2_entries[i].valid == 0)
@@ -35,9 +72,13 @@ int l2_get_victim_block(int set_index) {
 		if(l2_lru_counter.lru_sets[set_index].lru_bits[i] == 0)
 			return i;
 	}
-	return -1;
+	return -1; //Should ideally be unreachable since at least one counter entry will be 0 at all times
 }
 
+//Function to update lru counter given a set index and mru block index.
+//Count corresponding to mru block index is set to 7, all other blocks 
+//in the same get their count decremented by 1. If count<1, count is set
+//to 0.
 void l2_update_lru_counter(int set_index, int mru_block_index) {
 	l2_lru_counter.lru_sets[set_index].lru_bits[mru_block_index] = 0x7;
 	for(int i=0;i<NO_OF_L2_WAYS;i++) {
@@ -52,6 +93,8 @@ void l2_update_lru_counter(int set_index, int mru_block_index) {
 	return;
 }
 
+//Function to prompt mm to write data corresponding to given physical address
+//to 32B bus.
 void l2_get_block_from_mm(l2_address addr, int victim_block) {
 	int physical_address = l2_get_physical_address_from_l2_address(addr);
 
@@ -61,6 +104,7 @@ void l2_get_block_from_mm(l2_address addr, int victim_block) {
 	return;
 }
 
+//Function to write victim block back to MM
 void l2_write_dirty_block_back_to_mm(l2_address l2_addr, int victim_block) {
 	int physical_address = l2_get_physical_address_from_l2_address(l2_addr);
 	
@@ -72,6 +116,9 @@ void l2_write_dirty_block_back_to_mm(l2_address l2_addr, int victim_block) {
 	l2->l2_sets[l2_addr.index].l2_entries[victim_block].dirty = 0;
 }
 
+//This function assigns a block in the cache. If the given block has modified
+//data, the block is written back to MM. New data is obtained from MM and 
+//LRU counter is updated to reflect this most recent access.
 int l2_service_cache_miss(int physical_address) {
 	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
 	
@@ -91,12 +138,12 @@ int l2_service_cache_miss(int physical_address) {
 	
 	l2->l2_sets[l2_addr.index].l2_entries[victim_block] = new_entry;
 	l2_update_lru_counter(l2_addr.index, victim_block);
-	// l2_read_to_l1(l2_get_physical_address_from_l2_address(l2_addr));
 	
 	return victim_block;
 }
 
-//returns way no
+//Checks if given block exists in L2_cache by comparing tags in all ways
+//of the given index with the tag of the given address.
 int l2_search_cache(int physical_address) {
 	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
 	l2_set l2_set = l2->l2_sets[l2_addr.index];
@@ -112,12 +159,16 @@ int l2_search_cache(int physical_address) {
 	return -1;
 }
 
+//Function to write from L1 to L2. L1 writes data to bus16B and that data
+//is written into L2
 void l2_write_from_l1_to_l2(int physical_address){
    
 	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
    
 	int wayNo = l2_search_cache(physical_address);
-	//-1 Not really required because inclusive cache
+	if(wayNo == -1) {
+		wayNo = l2_service_cache_miss(physical_address);
+	}
 	
 	total_access_time += l1_to_l2_write_time;
 
@@ -134,9 +185,9 @@ void l2_write_from_l1_to_l2(int physical_address){
    return;
 }
 
+//Function to read to L1. L2 returns data corresponding to given physical address.
 void l2_read_to_l1(int physical_address, int wayNo) {
 	
-	//Transfer data from l2 to bus16B
 	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
 	
 	total_access_time += l2_to_l1_write_time;
@@ -151,7 +202,7 @@ void l2_read_to_l1(int physical_address, int wayNo) {
 	}
 }
 
-
+//Initialise L2 cache and LRU counter
 void l2_initialize() {
 	l2 = malloc(sizeof(l2_cache));
 	for(int i=0;i<SETS;i++) {
@@ -169,6 +220,8 @@ void l2_initialize() {
 	}
 }
 
+//Before terminating, the modified data in L2 cache should be written 
+//back to MM to prevent loss of data.
 void l2_terminate() {
 	for(int i=0;i<SETS;i++) {
 		for(int j=0;j<NO_OF_L2_WAYS;j++) {
@@ -182,50 +235,3 @@ void l2_terminate() {
 		}
 	}
 }
-
-void l2_spaceRemover(char *s)
-{
-	char *d = s;
-	while (*d!=0)
-	{
-		if (*d==' ')
-		{
-			d++;
-			continue;
-		}
-		*s = *d;
-		s++;
-		d++;
-	}
-	*s = *d;
-}
-
-// int main() {
-	
-// 	//~ int f = 0x7fff8000;
-// 	//~ L2_address l2addr = l2_get_l2_address_from_physical_address(f);
-// 	//~ printf("%x", l2_get_physical_address_from_l2_address(l2addr));
-	
-// 	l2_initialize();
-
-// 	FILE * fp = fopen("VORTEX.txt", "r");
-// 	char input[50];
-// 	int cnt=1;
-// 	while (fgets(input, 50, fp)!=NULL)
-// 	{
-// 		l2_spaceRemover(input);
-// 		int tlbaddress =strtol(input, NULL, 16); 
-// 		if(cnt)
-// 			l2_read_to_l1(tlbaddress);
-// 		else
-// 			l2_write_from_l1_to_l2(tlbaddress);
-// 		cnt++;
-// 		cnt=cnt%2;
-// 	}
-// 	// checkInitialization();
-// 	printf("Total Cache Hits: %d\n", hit);
-// 	printf("Total Cache Miss: %d\n", miss);
-// 	printf("Hit ratio : %f\n", (float)(hit)/(hit + miss));
-
-// 	return 0;
-// }
