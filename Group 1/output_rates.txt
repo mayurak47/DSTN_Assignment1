@@ -6,8 +6,8 @@ Process 5 : VORTEX.txt
 
 TLB miss for each process
 Process 1 : tlb miss rate = 2.342233
-Process 2 : tlb miss rate = 5.514836
-Process 3 : tlb miss rate = 1.814810
+Process 2 : tlb miss rate = 5.511702
+Process 3 : tlb miss rate = 1.811498
 Process 4 : tlb miss rate = 1.446146
 Process 5 : tlb miss rate = 2.601014
 
@@ -19,22 +19,22 @@ Process 4 : l1 miss rate = 9.066222
 Process 5 : l1 miss rate = 18.975953
 
 L2 miss for each process
-Process 1 : l2 miss rate = 11.279637
-Process 2 : l2 miss rate = 9.605574
-Process 3 : l2 miss rate = 13.243289
-Process 4 : l2 miss rate = 23.385060
-Process 5 : l2 miss rate = 9.525862
+Process 1 : l2 miss rate = 11.558577
+Process 2 : l2 miss rate = 9.649123
+Process 3 : l2 miss rate = 13.413184
+Process 4 : l2 miss rate = 23.096355
+Process 5 : l2 miss rate = 9.698276
 
 Page faults rate of each process:
 Process 1 : page fault = 56, page hit = 1223, page fault rate = 4.378421
-Process 2 : page fault = 167, page hit = 12150, page fault rate = 1.355850
-Process 3 : page fault = 66, page hit = 1578, page fault rate = 4.014599
+Process 2 : page fault = 167, page hit = 12143, page fault rate = 1.356621
+Process 3 : page fault = 66, page hit = 1575, page fault rate = 4.021938
 Process 4 : page fault = 160, page hit = 282, page fault rate = 36.199095
 Process 5 : page fault = 33, page hit = 285, page fault rate = 10.377358
 
-Total TLB miss rate = 3.889849
+Total TLB miss rate = 3.887418
 Total L1 miss rate = 9.402009
-Total L2 miss rate = 11.943733
-Total page fault rate = 3.012500
+Total L2 miss rate = 12.044579
+Total page fault rate = 3.014384
 
-Total time taken for all processes = 1413493
+Total time taken for all processes = 1420042
