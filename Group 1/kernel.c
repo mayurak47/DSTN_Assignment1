@@ -49,9 +49,10 @@ kernel_struct* kernel_initialize_kernel(main_memory_struct** main_memory){
 unsigned int kernel_check_valid_bit(unsigned int pid, kernel_struct *kernel){
     for(unsigned int i=0; i<NUM_PROCESSES; i++){
         if(kernel->pcb[i].pid == pid){
-            return (kernel->pcb[i].valid & 0x1 == 1);
+            return ((kernel->pcb[i].valid & 0x1) == 1);
         }
     }
+    return 0;
 }
 
 //Function used to set the valid bit of the outer page table to 1.

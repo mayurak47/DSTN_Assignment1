@@ -583,7 +583,7 @@ void mm_invalidate_page_table_entries(logical_address_struct page_no, unsigned i
 
 //Check if the frame we are replacing is dirty or not. This function is also needed while termination of process.
 unsigned int mm_check_dirty_bit(unsigned int frame_no, main_memory_struct *main_memory){
-    return (main_memory->frame_table.frame_entry[frame_no].modified & 0x1 == 1);    
+    return ((main_memory->frame_table.frame_entry[frame_no].modified & 0x1) == 1);    
 
 }
 
