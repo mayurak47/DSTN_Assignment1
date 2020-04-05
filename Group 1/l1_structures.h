@@ -18,8 +18,6 @@ typedef struct
 
 	short LRUBits;
 	char wayPrediction;
-
-	// char padding;
 }L1_row;
 
 typedef struct
