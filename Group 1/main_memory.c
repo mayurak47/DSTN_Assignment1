@@ -21,7 +21,7 @@ void mm_print_frame_table(frame_table_struct frame_table){
     printf(" ________________________________________________________________________________________________________________________\n");
     printf("|    FRAME NO   |     VALID\t|\tPID\t|\tP/F\t|     Counter\t|\tLogical Address\t|\tPage Pointer\t|\n");
     for(unsigned int i=0; i<NO_OF_FRAMES; i++){
-        if(frame_table.frame_entry[i].valid & 0x1 == 1){
+        if((frame_table.frame_entry[i].valid & 0x1) == 1){
             printf("|\t%d\t|\t%d\t|\t%d\t|\t%s\t|\t%x\t|\t%x\t|\n", i, frame_table.frame_entry[i].valid, frame_table.frame_entry[i].pid, frame_table.frame_entry[i].desc == 'f' ? "Frame" : (frame_table.frame_entry[i].desc == 'p' ? "Page" : "Kernel"), frame_table.frame_entry[i].counter & 0xFFFF, mm_convert_back(frame_table.frame_entry[i].page_no));
         }
     }
@@ -38,7 +38,7 @@ void mm_print_page_table(page_table_struct *page_table){
     printf("_________________________________________________\n");
     printf("|    INDEX\t|\tV/I\t|    FRAME NO   |\n");
     for(unsigned int i=0; i<NO_OF_PT_ENTRIES; i++){
-        if(page_table->page_entry[i].valid & 0x1 == 1){
+        if((page_table->page_entry[i].valid & 0x1) == 1){
             printf("|\t%d\t|\t%d\t|\t%d\t|\n", i, page_table->page_entry[i].valid, page_table->page_entry[i].page.frame_no);
         }
     }
@@ -216,7 +216,7 @@ void mm_update_frame_table(frame_table_struct *frame_table, unsigned int free_fr
 */
 void mm_update_counter(frame_table_struct *frame_table, unsigned int frame){
     for(unsigned int i=0; i<NO_OF_FRAMES; i++){
-        if(frame_table->frame_entry[i].valid & 0x1 == 1){
+        if((frame_table->frame_entry[i].valid & 0x1) == 1){
             frame_table->frame_entry[i].counter = (frame_table->frame_entry[i].counter & 0xFFFF)>> 1;
         }
     }

@@ -104,7 +104,7 @@ int check_eof(FILE* process[NUM_PROCESSES]){
 void context_switch(kernel_struct* kernel, int pid){
     (*kernel).currently_executing_process = pid;
     for(int i=0; i<NUM_PROCESSES; i++){
-        if(kernel->pcb[i].pid == pid && kernel->pcb[i].valid & 0x1 == 1){
+        if(kernel->pcb[i].pid == pid && (kernel->pcb[i].valid & 0x1) == 1){
             (*kernel).CR3_reg = kernel->pcb[i].outer_page;
             break;
         }

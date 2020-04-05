@@ -102,7 +102,7 @@ int main(int argc, char* argv[]){
     int count = 1;
     while(1){
         //If the process is the first process to execute, context switch to this process.
-        if(kernel->currently_executing_process = -1){
+        if(kernel->currently_executing_process == -1){
             kernel->currently_executing_process = pid[i];
             context_switch(kernel, pid[i]);
         }
