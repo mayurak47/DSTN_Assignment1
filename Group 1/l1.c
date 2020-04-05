@@ -263,7 +263,7 @@ int l1_comparator(int TLBaddress, char wayPrediction, int index)
 {
 	short frameBits = l1_TLBtoFrame(TLBaddress);
 	short valid_frameBits = frameBits | 0x8000;
-	short valid_Tag;
+	short valid_Tag = 0;
 	
 	switch(wayPrediction)
 	{
