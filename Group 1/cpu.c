@@ -233,18 +233,16 @@ int main(int argc, char* argv[]){
     fclose(output_rates_file);
     fclose(output_times_file);
 
-    for(int i=0; i<NUM_PROCESSES; i++){
-        free(tlb_hit);
-        free(tlb_miss);
-        free(l1_hit);
-        free(l1_miss);
-        free(l2_hit);
-        free(l2_miss);
-        free(page_fault);
-        free(page_hit);
-        free(terminate_process);
-        free(instruction_count);
-    }
+    free(tlb_hit);
+    free(tlb_miss);
+    free(l1_hit);
+    free(l1_miss);
+    free(l2_hit);
+    free(l2_miss);
+    free(page_fault);
+    free(page_hit);
+    free(terminate_process);
+    free(instruction_count);
 
 }
 
