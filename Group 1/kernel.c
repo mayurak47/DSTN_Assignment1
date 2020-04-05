@@ -20,6 +20,68 @@ void kernel_load_new_process(int pid, FILE* fd, main_memory_struct* main_memory,
     mm_prefetch_pages(pid, fd, &main_memory, kernel);
 }
 
+/*
+    Input of function - Input is the main memory.
+    Purpose of the function - Initializes the kernel structure. It also updates the frame table to reflect that frame 0 is occupied by this kernel structure and it is not replaced.
+    Output/Result of function - Returns the pointer to the kernel structure.
+*/
+kernel_struct* kernel_initialize_kernel(main_memory_struct** main_memory){
+    kernel_struct* kernel = malloc(sizeof(kernel_struct));
+    kernel->pcb = malloc(sizeof(pcb_struct)*NUM_PROCESSES);
+
+    for(unsigned int i=0; i<NUM_PROCESSES; i++){
+        kernel->pcb[i].pid = -1;
+        kernel->pcb[i].outer_page.page_pointer = NULL;
+        kernel->pcb[i].outer_page.frame_no = -1;
+        kernel->pcb[i].valid = 0;
+    }
+
+    unsigned int free_frame = mm_get_free_frame(main_memory, kernel); //Frame 0 will always be given as this function is called during initialization.
+    logical_address_struct invalid;
+    invalid.outer_pt = invalid.middle_pt = invalid.inner_pt = -1;
+
+    mm_update_frame_table(&((*main_memory)->frame_table), free_frame, 0, 'k', invalid);
+
+    return kernel;
+}
+
+//Function used to check whether the outer page table of the process is valid or not.
+unsigned int kernel_check_valid_bit(unsigned int pid, kernel_struct *kernel){
+    for(unsigned int i=0; i<NUM_PROCESSES; i++){
+        if(kernel->pcb[i].pid == pid){
+            return (kernel->pcb[i].valid & 0x1 == 1);
+        }
+    }
+}
+
+//Function used to set the valid bit of the outer page table to 1.
+void kernel_set_valid_bit(unsigned int pid, kernel_struct *kernel){
+    for(unsigned int i=0; i<NUM_PROCESSES; i++){
+        if(kernel->pcb[i].pid == pid){
+            kernel->pcb[i].valid = 1;
+        }
+    }
+}
+
+//Function to invalidate the outer page table in the pcb if the frame selected to replace is the outer page table frame.
+void kernel_invalidate_outer_page_table(int pid, kernel_struct* kernel){
+    for(unsigned int i=0; i<NUM_PROCESSES; i++){
+            if(kernel->pcb[i].pid == pid){
+                kernel->pcb[i].valid = 0;
+            }
+    }
+}
+
+//Function to terminate the process by setting the pid in the pcb of the process as -1.
+void kernel_terminate_process(int pid, kernel_struct* kernel){
+    for(unsigned int i=0; i<NUM_PROCESSES; i++){
+        if(kernel->pcb[i].pid == pid){
+            kernel->pcb[i].pid = -1;
+        }
+    }
+
+}
+
 //Function to check whether all processes have reached end of file or not
 int check_eof(FILE* process[NUM_PROCESSES]){
     int flag = 0;
@@ -111,7 +173,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
     
     //If it is a tlb miss, then we search in the main memory.
     if(frame_no == -1){
-        fprintf(output_file, "TLB Miss | ");
+        fprintf(output_times_file, "TLB Miss | ");
         tlb_miss[process_executing]++;
         
         //We need to restart the current instruction.
@@ -123,7 +185,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
         //If value returned is -1, it is a page fault and we need to context switch to another process.
         if(frame_no == -1){
-            fprintf(output_file, "Page Fault | Context Switch |\n");
+            fprintf(output_times_file, "Page Fault | Context Switch |\n");
             page_fault[process_executing]++;
             total_access_time += context_switch_time;
             return 0;
@@ -131,16 +193,17 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
         //Else, it is a page hit. We update the tlb with the frame number we got and restart the instruction.
         else{
-            fprintf(output_file, "Page hit |\n");
+            fprintf(output_times_file, "Page hit |\n");
             page_hit[process_executing]++;
             tlb_store_mapping(tlb, pid, address, frame_no);
         }
+
     }
 
     //If it is already a tlb hit, we search the L1 and L2 cache for the data.
     else{
         tlb_hit[process_executing]++;
-        fprintf(output_file, "TLB Hit  | Frame no = %d | ", frame_no);
+        fprintf(output_times_file, "TLB Hit  | Frame no = %d | ", frame_no);
 
         //Generating the physical address from the frame number.
         int physical_address;
@@ -153,7 +216,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
         //If the data returned is NULL, it is a L1 cache miss. We then need to search in L2.
         if(data == '\0'){
-            fprintf(output_file, "L1 miss | ");
+            fprintf(output_times_file, "L1 miss | ");
             l1_miss[process_executing]++;
 
             //As L2 and main memory are look aside, we need to search both parallely to get the data.
@@ -161,14 +224,14 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
             mm_get_data_from_frame(physical_address);
 
             if(way_no == -1){
-                fprintf(output_file, "L2 miss | Getting data from mm\n");
+                fprintf(output_times_file, "L2 miss | Getting data from mm\n");
                 l2_miss[process_executing]++;
                 total_access_time += mm_page_lookup_time;
                 l2_service_cache_miss(physical_address);
             }
             else{
                 //If it is a l2 hit, then data will need to be transferred to bus16B so that it can be sent to L1.
-                fprintf(output_file, "L2 hit  |\n");
+                fprintf(output_times_file, "L2 hit  |\n");
                 total_access_time += l2_cache_lookup_time;
                 l2_hit[process_executing]++;
             }
@@ -182,14 +245,14 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
         //If it is a l1 hit, the data will not be null and will be directly sent to the cpu.
         else{
-            fprintf(output_file, "L1 hit  | ");
+            fprintf(output_times_file, "L1 hit  | ");
             l1_hit[process_executing]++;
 
             char cpu_data = 'x';
 
             //If cpu wants to write to L1 and the instruction is of type DATA_REQUEST, i.e. L1 cache is data cache, then only allow write.
             if(write_bit == 1 && request_type == DATA_REQUEST){
-                fprintf(output_file, "Write to L1 |");
+                fprintf(output_times_file, "Write to L1 |");
                 //Write data from cpu and L1 and update the bus between L1 and L2 (bus16B)
                 l1_write_to_l1(physical_address, cpu_data);
 
@@ -199,7 +262,7 @@ int execute_process_request(int address, int process_executing, int pid, FILE* p
 
                 total_access_time += max(cpu_to_l1_write_time, l1_to_l2_write_time);
             }
-            fprintf(output_file, "\n");
+            fprintf(output_times_file, "\n");
         }
         instruction_count[process_executing]++;
     }

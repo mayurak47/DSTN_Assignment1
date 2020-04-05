@@ -20,12 +20,9 @@ extern void l1_print_cache(L1_struct *l1);
 extern void l2_read_to_l1(int physical_address, int wayNo);
 extern void l2_write_from_l1_to_l2(int physical_address);
 extern void l2_initialize();
-extern void l2_flush_l2_cache();
 extern int l2_search_cache(int physical_address);
 extern int l2_service_cache_miss(int physical_address);
 extern void l2_clear_l2(l2_cache *l2);
-extern void l2_print_l2_cache_set(int physical_address);
-extern void l2_print_lru_counter_for_set(int physical_address);
 
 //Main memory functions
 extern void mm_print_frame_table(frame_table_struct frame_table);
@@ -33,6 +30,8 @@ extern void mm_print_page_table(page_table_struct *page_table);
 extern page_info mm_initialize_page_table(unsigned int pid, main_memory_struct** main_memory, kernel_struct *kernel);
 extern void mm_initialize_mm(void);
 extern kernel_struct* mm_initialize_kernel(main_memory_struct**);
+extern unsigned int mm_get_free_frame(main_memory_struct** main_memory, kernel_struct *kernel);
+extern void mm_update_frame_table(frame_table_struct* frame_table, unsigned int free_frame, unsigned int pid, char desc, logical_address_struct la);
 extern void mm_prefetch_pages(unsigned int pid, FILE *process, main_memory_struct **main_memory, kernel_struct *kernel);
 extern unsigned int mm_replace_page(main_memory_struct** main_memory, kernel_struct *kernel);
 extern unsigned int mm_search_page_table(logical_address_struct, unsigned int pid, main_memory_struct** main_memory, kernel_struct *kernel);
@@ -56,5 +55,10 @@ extern void context_switch(kernel_struct* kernel, int pid);
 extern void kernel_load_new_process(int pid, FILE* fd, main_memory_struct* main_memory, kernel_struct *kernel);
 extern int check_eof(FILE* process[NUM_PROCESSES]);
 extern int get_request_type(int virtual_address);
+extern kernel_struct* kernel_initialize_kernel(main_memory_struct** main_memory);
+extern unsigned int kernel_check_valid_bit(unsigned int pid, kernel_struct *kernel);
+extern void kernel_set_valid_bit(unsigned int pid, kernel_struct *kernel);
+extern void kernel_invalidate_outer_page_table(int pid, kernel_struct* kernel);
+extern void kernel_terminate_process(int pid, kernel_struct* kernel);
 
 #endif

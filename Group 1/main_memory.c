@@ -5,9 +5,7 @@ void mm_print_page_table(page_table_struct *page_table);
 void mm_initialize_free_frames(free_frames_struct** free_frames_head);
 void mm_initialize_frame_table(frame_table_struct* frame_table);
 void mm_update_page_table(page_table_struct** page_table, unsigned int entry, page_info page);
-void mm_update_frame_table(frame_table_struct* frame_table, unsigned int free_frame, unsigned int pid, char desc, logical_address_struct la);
 void mm_update_counter(frame_table_struct *frame_table, unsigned int frame);
-unsigned int mm_get_free_frame(main_memory_struct** main_memory, kernel_struct *kernel);
 page_info mm_new_page_table(unsigned int pid, logical_address_struct la, main_memory_struct** main_memory, kernel_struct *kernel);
 page_info mm_load_page(unsigned int pid, logical_address_struct la, main_memory_struct** main_memory, kernel_struct *kernel);
 void mm_invalidate_page_table_entries(logical_address_struct page_no, unsigned int pid, main_memory_struct *main_memory, kernel_struct *kernel);
@@ -139,31 +137,6 @@ void mm_initialize_mm(){
 
     mm_initialize_free_frames(&(main_memory->free_frames_head));
     mm_initialize_frame_table(&(main_memory->frame_table));
-}
-
-/*
-    Input of function - Input is the main memory.
-    Purpose of the function - Initializes the kernel structure. It also updates the frame table to reflect that frame 0 is occupied by this kernel structure and it is not replaced.
-    Output/Result of function - Returns the pointer to the kernel structure.
-*/
-kernel_struct* mm_initialize_kernel(main_memory_struct** main_memory){
-    kernel_struct* kernel = malloc(sizeof(kernel_struct));
-    kernel->pcb = malloc(sizeof(pcb_struct)*NUM_PROCESSES);
-
-    for(unsigned int i=0; i<NUM_PROCESSES; i++){
-        kernel->pcb[i].pid = -1;
-        kernel->pcb[i].outer_page.page_pointer = NULL;
-        kernel->pcb[i].outer_page.frame_no = -1;
-        kernel->pcb[i].valid = 0;
-    }
-
-    unsigned int free_frame = mm_get_free_frame(main_memory, kernel); //Frame 0 will always be given as this function is called during initialization.
-    logical_address_struct invalid;
-    invalid.outer_pt = invalid.middle_pt = invalid.inner_pt = -1;
-
-    mm_update_frame_table(&((*main_memory)->frame_table), free_frame, 0, 'k', invalid);
-
-    return kernel;
 }
 
 /*
@@ -329,24 +302,6 @@ page_info mm_load_page(unsigned int pid, logical_address_struct la, main_memory_
     return new_page;
 }
 
-//Function used to check whether the outer page table of the process is valid or not.
-unsigned int mm_check_valid_bit(unsigned int pid, kernel_struct *kernel){
-    for(unsigned int i=0; i<NUM_PROCESSES; i++){
-        if(kernel->pcb[i].pid == pid){
-            return (kernel->pcb[i].valid & 0x1 == 1);
-        }
-    }
-}
-
-//Function used to set the valid bit of the outer page table to 1.
-void mm_set_valid_bit(unsigned int pid, kernel_struct *kernel){
-    for(unsigned int i=0; i<NUM_PROCESSES; i++){
-        if(kernel->pcb[i].pid == pid){
-            kernel->pcb[i].valid = 1;
-        }
-    }
-}
-
 /*
     Input of function - Input is the logical address. pid of process, main memory structure and the kernel structure.
     Purpose of the function - Searches the page tables for the frame occupied by this process using the logical address.
@@ -369,12 +324,12 @@ unsigned int mm_search_page_table(logical_address_struct la, unsigned int pid, m
     //This step is necessary to check whether the outer page table is swapped out or not.
     //If it is swapped out, then the frame number will be -1 and we will need to get a new page table for the outer page table.
     //This is a page fault and the instruction needs to be executed again.
-    if(mm_check_valid_bit(pid, kernel) == 0){    
+    if(kernel_check_valid_bit(pid, kernel) == 0){    
 
         // printf("| Page fault : Outer page table exists in swap space |");
         int new_frame_no = mm_get_free_frame(main_memory, kernel);
         mm_update_frame_table(&(*main_memory)->frame_table, new_frame_no, pid, 'p', la);
-        mm_set_valid_bit(pid, kernel);
+        kernel_set_valid_bit(pid, kernel);
     }
 
     //Outer page table is the MRU one.
@@ -568,11 +523,7 @@ unsigned int mm_replace_page(main_memory_struct **main_memory, kernel_struct* ke
     //Check whether the lru frame contained the outer page table for some other process or not.
     //If it did, then update the pcb of the other process by setting the frame no of outer page table as -1 
     if(outer_pt_frame_no == lru_frame){
-        for(unsigned int i=0; i<NUM_PROCESSES; i++){
-            if(kernel->pcb[i].pid == pid){
-                kernel->pcb[i].valid = 0;
-            }
-        }
+        kernel_invalidate_outer_page_table(pid, kernel);
         return lru_frame;
     }
 
@@ -593,7 +544,7 @@ void mm_invalidate_page_table_entries(logical_address_struct page_no, unsigned i
     unsigned int middle_pt = page_no.middle_pt & 0x1ff;
     unsigned int inner_pt = page_no.inner_pt & 0x1ff;
 
-    if(mm_check_valid_bit(pid, kernel) == 0){
+    if(kernel_check_valid_bit(pid, kernel) == 0){
         return;
     }
 
@@ -666,11 +617,7 @@ void mm_terminate_process(unsigned int pid, main_memory_struct **main_memory, ke
     }
 
     //Make the pid in the pcb as -1 to indicate this process has terminated.
-    for(unsigned int i=0; i<NUM_PROCESSES; i++){
-        if(kernel->pcb[i].pid == pid){
-            kernel->pcb[i].pid = -1;
-        }
-    }
+    kernel_terminate_process(pid, kernel);
 
 }
 
@@ -756,89 +703,3 @@ unsigned int mm_convert_back(logical_address_struct la){
     x = x | (la.offset & 0x3ff); 
     return x;
 }
-
-// unsigned int main(unsigned int argc, char* argv[]){
-// //Initialize main memory;
-//     main_memory_struct *main_memory = mm_initialize_mm();
-//     kernel_struct *kernel = mm_initialize_kernel(&main_memory);
-
-//     FILE *process[NUM_PROCESSES];
-//     unsigned int pid[NUM_PROCESSES];
-//     for(unsigned int i=0; i<NUM_PROCESSES; i++){
-//         process[i] = fopen(argv[i+1], "r");
-//         pid[i] = (i+1)*100;
-//         if(process[i] == NULL){
-//             printf("Error: Opening file %d\n", i);
-//             return 0;
-//         }
-//     }
-
-//     for(unsigned int i=0; i<NUM_PROCESSES; i++){
-//         mm_initialize_page_table(pid[i], &main_memory, kernel);
-//         // mm_prefetch_pages(pid[i], process[i], &main_memory, kernel);
-//     }
-
-
-//     unsigned int page_hit[NUM_PROCESSES] = {0};
-//     unsigned int page_fault[NUM_PROCESSES] = {0};
-//     unsigned int total_pages[NUM_PROCESSES] = {0};
-//     unsigned int terminate_process[NUM_PROCESSES] = {0};
-//     unsigned int prefetch[NUM_PROCESSES] = {0};
-
-
-//     unsigned int i=0;
-//     unsigned int count = 1;
-//     while(count<1000){
-//         if(check_eof(process))
-//             break;
-
-//         if(terminate_process[i] == 1){
-//             i = (i+1)%5;
-//             continue;
-//         }
-        
-//         if(prefetch[i] == 0){
-//             prefetch[i] = 1;
-//             mm_prefetch_pages(pid[i], process[i], &main_memory, kernel);
-//         }
-
-//         printf("Count = %d | ", count);
-
-//         if(feof(process[i])){
-//             terminate_process[i] = 1;
-//             mm_terminate_process(pid[i], &main_memory, kernel);
-//             printf("Process %d terminated\n", i);
-//             sleep(5);
-//             i = (i+1)%5;
-//             continue;
-//         }
-
-//         unsigned int n;
-//         fscanf(process[i], "%x", &n);
-//         total_pages[i]++;
-//         printf("| Process %d, address = %x |", i, n);
-//         logical_address_struct la = mm_convert(n);
-//         unsigned int frame_no;
-//         if((frame_no = mm_search_page_table(la, pid[i], &main_memory, kernel)) == -1){
-//             printf("| PAGE FAULT |\n");
-//             page_fault[i]++;
-//             i = (i+1)%NUM_PROCESSES;
-//         }
-//         else{
-//             printf("| PAGE HIT |\n");
-//             page_hit[i]++;
-//         }
-//         count++;
-//     }
-
-//     double page_fault_rate[NUM_PROCESSES];
-//     for(unsigned int i=0; i<NUM_PROCESSES; i++){
-//         page_fault_rate[i] = ((double)page_fault[i]/(double)total_pages[i])*100;
-//     }
-
-//     printf("\nPage faults rate of each process:\n");
-//     for(unsigned int i=0; i<NUM_PROCESSES; i++){
-//         printf("Process %d : page fault rate = %f\n", i+1, page_fault_rate[i]);
-//     }
-//     printf("\n");
-// }

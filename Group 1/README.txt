@@ -39,12 +39,11 @@ Main memory - Number of frames = 32768. Hierarchical paging with three level pag
 
 2. tlb_structures.h : Contains data structures required for the TLB. tlb_entry defines a single entry in the TLB, whose fields are a valid bit, a pid identifier, page no, frame no and a counter for replacement. tlb_buffer describes the entire TLB, with 32 instances of tlb_entry.
 
-3. l1_structures.h :	
+3. l1_structures.h :
 
 4. l2_structures.h : Contains the data structures required for L2 cache.
-					 l2_entry consists of valid bit, dirty bit, tag field and data(32B). l2_set consists of 8 l2_entries(8 way set associative).
-					 counter_lru is used for implementing LRU counter replacement policy.
-					 
+					 l2_entry consists of valid bit, dirty bit, tag field and data(32B). l2_set consists of 8 l2_entries(8 way set associative). counter_lru is used for implementing LRU counter replacement policy.
+
 5. global_variables.h : It contains the various global variables which are used in different programs. It contains pointers to tlb, l1, l2 and main memory. It also contains the buses between l1-l2 and l2-main memory. It also contains the hit and miss counts of tlb, l1, l2 and main memory.
 
 6. functions.h : It contains the declaration of all the functions defined in different programs. These contain the functions of tlb, l1, l2, main memory and the kernel.
@@ -63,7 +62,7 @@ Main memory - Number of frames = 32768. Hierarchical paging with three level pag
  Input and output files :
 
 1. input.txt : It contains the number of processes and the names of all processes.
-2. output.txt : It contains the output of the simulation. The details in the output file is given below.
+2. output_rates.txt and output_times.txt : It contains the output of the simulation. The details in the output file is given below.
 3. APSI.txt, CC1.txt, LI.txt, M88KSIM.txt, VORTEX.txt : The process files. These files contains the virtual addresses accessed by the process.
 
 
@@ -98,17 +97,17 @@ Command : ./test input.txt
 	13. After all the instructions of a process have executed, the process is terminated. While termination, if the dirty bit of the frame is set, it is first written to disk and then removed. Corresponding entries of the process in the tlb are also invalidated.
 
  OUTPUT OF THE PROGRAM:
-The output of the program is stored in output.txt. In the start, it contains the various hit and miss rates for tlb, l1, l2 and main memory for each process. Then, it states the total time taken for the execution of all processes.
+The output of the program is stored in two files - output_rates.txt and output_times.txt. 
 
-After that, it displays various fields in each line. The fields are:
-instruction count of executing process.
-Whether the instruction is an instruction or data.
-Pid of executing process
-The logical address being executed
-Whether it is a tlb miss, tlb hit, l1 miss, l1 hit, l2 miss, l2 hit, page hit or page fault.
-Whether the cpu is writing to l1 or not.
+output_rates.txt stores the miss rates of tlb, l1, l2 and main memory of each process, the overall miss rate of tlb, l1, l2 and main memory and the total time taken for execution of all processes.
 
-The output file also contains a line when the process gets terminated.
+output_times.txt stores the detailed information about each instruction executed of each process. It also stores when the process is swapped out due to timeout and when it is terminated. The various fields in each line of the output are as follows:
+1. instruction count of executing process.
+2. Whether the instruction is an instruction or data.
+3. Pid of executing process
+4. The logical address being executed
+5. Whether it is a tlb miss, tlb hit, l1 miss, l1 hit, l2 miss, l2 hit, page hit or page fault.
+6. Whether the cpu is writing to l1 or not.
 
 COMPLETION OF ASSIGNMENT:
 	We have completed all the required tasks asked in the question that we know of. 

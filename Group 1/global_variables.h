@@ -7,9 +7,13 @@
 #include "tlb_structures.h"
 #include "config.h"
 
+// #define NUM_PROCESSES 5
 #define DATA_REQUEST 0
 #define INSTRUCTION_REQUEST 1   
 #define NUMBER_OF_INSTRUCTIONS_FOR_CONTEXT_SWITCH 500
+#define REQUIRED_PREFETCHED_PAGES 2
+
+int NUM_PROCESSES;
 
 char bus16B[L1_BLOCK]; //Bus between L1 and L2
 char bus32B[L2_BLOCK]; //Bus between L2 and main memory
@@ -31,21 +35,21 @@ main_memory_struct *main_memory;
 //Total execution time for all the processes.
 int total_access_time;
 
-int instruction_count[NUM_PROCESSES];
+int *instruction_count;
 
 //Various hit count and miss count for all processes.
-int page_hit[NUM_PROCESSES];
-int page_fault[NUM_PROCESSES];
-int tlb_hit[NUM_PROCESSES];
-int tlb_miss[NUM_PROCESSES];
-int l1_hit[NUM_PROCESSES];
-int l1_miss[NUM_PROCESSES];
-int l2_hit[NUM_PROCESSES];
-int l2_miss[NUM_PROCESSES];
+int *page_hit;
+int *page_fault;
+int *tlb_hit;
+int *tlb_miss;
+int *l1_hit;
+int *l1_miss;
+int *l2_hit;
+int *l2_miss;
 
 //Indicates whether the process has terminated.
-int terminate_process[NUM_PROCESSES];
+int *terminate_process;
 
-FILE* output_file;
+FILE* output_times_file;
 
 #endif

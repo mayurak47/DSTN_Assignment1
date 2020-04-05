@@ -114,28 +114,3 @@ void tlb_print_tlb_contents(tlb_buffer *tlb)
     printf("%u\t%u\t%u\t\t%u\t\t%u\n", tlb->entries[i].valid, tlb->entries[i].pid, tlb->entries[i].page_no, tlb->entries[i].frame_no, tlb->entries[i].counter);
   }
 }
-
-// //testing
-// int main()
-// {
-//   tlb_buffer *tlb = tlb_create_tlb();
-//   for(int i=0; i<16; i++)
-//   {
-//     tlb_store_mapping(tlb, 1, 12675671+1024*i, i);
-//   }
-//   for(int i=0; i<16; i++)
-//   {
-//     tlb_store_mapping(tlb, 2, 12675671+1024*i, 16+i);
-//   }
-//   tlb_print_tlb_contents(tlb);
-//   tlb_invalidate(tlb, 1);
-//   tlb_print_tlb_contents(tlb);
-//   printf("%d\n", tlb_search(tlb, 1, 12675671));
-//   tlb_print_tlb_contents(tlb);
-//   printf("%d\n", tlb_search(tlb, 2, 12675671));
-//   printf("%d\n", tlb_search(tlb, 2, 12675671));
-//   tlb_print_tlb_contents(tlb);
-//   printf("%d\n", tlb_replace(tlb));
-//   tlb_store_mapping(tlb, 3, 12675671*2, 324);
-//   tlb_print_tlb_contents(tlb);
-// }
