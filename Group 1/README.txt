@@ -12,10 +12,10 @@ Aboli Pai (2017A7PS0147G)
 Anurag Madnawat (2017A7PS1923G)
 
  CONTRIBUTION OF EACH MEMBER:
-Kevin Boban - Implementation of L2 cache structures and functions.
-Mayur Arvind - Implementation of TLB structures and functions.
-Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program.
-Ritvik Agarwal - Implementation of L1 cache and functions.
+Kevin Boban - Implementation of L2 cache structures and functions. (20%)
+Mayur Arvind - Implementation of TLB structures and functions. (20%)
+Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program. (40%)
+Ritvik Agarwal - Implementation of L1 cache and functions. (20%)
 
  DESCRIPTION OF THE PROBLEM:
 TLB - Identifier based TLB. Invalidation occurs at termination of process.

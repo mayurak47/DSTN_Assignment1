@@ -223,7 +223,7 @@ int main(int argc, char* argv[]){
     fprintf(output_rates_file, "Total L2 miss rate = %f\n", ((double)total_l2_miss/(double)(total_l2_hit + total_l2_miss))*100);
     fprintf(output_rates_file, "Total page fault rate = %f\n", ((double)total_page_fault/(double)(total_page_fault + total_page_hit))*100);
 
-    fprintf(output_rates_file, "\nTotal time taken for all processes = %d\n", total_access_time);
+    fprintf(output_rates_file, "\nTotal time taken for all processes = %d\n\n", total_access_time);
 
     for(int i=0; i<NUM_PROCESSES; i++){
         fclose(process[i]);

@@ -279,9 +279,8 @@ int l1_comparator(int TLBaddress, char wayPrediction, int index)
 		case 3:
 			valid_Tag = l1->L1row[index].valid_Tag[3];
 			break;
-		default:	
-			break;
-			// printf("Invalid wayPrediction Number.\n");
+		default:
+			printf("Invalid wayPrediction Number.\n");	
 	}
 	if ((valid_Tag & 0x8000) == 0)
 		return -1; //invalid 
