@@ -73,6 +73,27 @@ void kernel_invalidate_outer_page_table(int pid, kernel_struct* kernel){
     }
 }
 
+page_info kernel_get_outer_page_table(int pid, kernel_struct* kernel){
+    for(int i=0; i<NUM_PROCESSES; i++){
+        if(kernel->pcb[i].pid == pid)
+            return kernel->pcb[i].outer_page;
+    }
+
+    //Ideally unreachable
+    page_info invalid;
+    invalid.frame_no = -1;
+    invalid.page_pointer = NULL;
+    return invalid;
+}
+
+int kernel_get_number_of_pages(int pid, kernel_struct* kernel){
+    for(int i=0; i<NUM_PROCESSES; i++){
+        if(kernel->pcb[i].pid == pid)
+            return kernel->pcb[i].number_of_pages;
+    }
+    return -1; //Ideally unreachable
+}
+
 //Function to terminate the process by setting the pid in the pcb of the process as -1.
 void kernel_terminate_process(int pid, kernel_struct* kernel){
     for(unsigned int i=0; i<NUM_PROCESSES; i++){

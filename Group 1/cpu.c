@@ -99,7 +99,6 @@ int main(int argc, char* argv[]){
     int total_instructions_executed = 1;
 
     int i=0;
-    int count = 1;
     while(1){
         //If the process is the first process to execute, context switch to this process.
         if(kernel->currently_executing_process == -1){

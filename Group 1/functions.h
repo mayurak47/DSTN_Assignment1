@@ -33,13 +33,11 @@ extern kernel_struct* mm_initialize_kernel(main_memory_struct**);
 extern unsigned int mm_get_free_frame(main_memory_struct** main_memory, kernel_struct *kernel);
 extern void mm_update_frame_table(frame_table_struct* frame_table, unsigned int free_frame, unsigned int pid, char desc, logical_address_struct la);
 extern void mm_prefetch_pages(unsigned int pid, FILE *process, main_memory_struct **main_memory, kernel_struct *kernel);
-extern unsigned int mm_replace_page(main_memory_struct** main_memory, kernel_struct *kernel);
 extern unsigned int mm_search_page_table(logical_address_struct, unsigned int pid, main_memory_struct** main_memory, kernel_struct *kernel);
 extern void mm_terminate_process(unsigned int pid, main_memory_struct** main_memory, kernel_struct* kernel);
 extern void mm_write_to_disk(unsigned int frame_no, main_memory_struct **main_memory);
 extern void mm_write_to_mm(unsigned int physical_address, main_memory_struct **main_memory);
 extern void mm_get_data_from_frame(int physical_address);
-extern void mm_clear_mm(main_memory_struct* main_memory);   
 extern logical_address_struct mm_convert(unsigned int address);
 
 //TLB functions
@@ -60,5 +58,7 @@ extern unsigned int kernel_check_valid_bit(unsigned int pid, kernel_struct *kern
 extern void kernel_set_valid_bit(unsigned int pid, kernel_struct *kernel);
 extern void kernel_invalidate_outer_page_table(int pid, kernel_struct* kernel);
 extern void kernel_terminate_process(int pid, kernel_struct* kernel);
+extern page_info kernel_get_outer_page_table(int pid, kernel_struct *kernel);
+extern int kernel_get_number_of_pages(int pid, kernel_struct* kernel);
 
 #endif

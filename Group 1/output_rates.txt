@@ -19,11 +19,11 @@ Process 4 : l1 miss rate = 9.066222
 Process 5 : l1 miss rate = 18.975953
 
 L2 miss for each process
-Process 1 : l2 miss rate = 11.488842
-Process 2 : l2 miss rate = 9.574468
-Process 3 : l2 miss rate = 13.294258
-Process 4 : l2 miss rate = 23.709852
-Process 5 : l2 miss rate = 10.000000
+Process 1 : l2 miss rate = 11.680614
+Process 2 : l2 miss rate = 9.866866
+Process 3 : l2 miss rate = 13.379205
+Process 4 : l2 miss rate = 24.972934
+Process 5 : l2 miss rate = 10.258621
 
 Page faults rate of each process:
 Process 1 : page fault = 56, page hit = 1223, page fault rate = 4.378421
@@ -34,8 +34,8 @@ Process 5 : page fault = 33, page hit = 285, page fault rate = 10.377358
 
 Total TLB miss rate = 3.887418
 Total L1 miss rate = 9.402009
-Total L2 miss rate = 12.029064
+Total L2 miss rate = 12.310915
 Total page fault rate = 3.014384
 
-Total time taken for all processes = 1435698
+Total time taken for all processes = 1387438
 

@@ -25,8 +25,6 @@ void l2_print_l2_cache_set(int physical_address) {
 //Function to print lru counter state for given set
 void l2_print_lru_counter_for_set(int physical_address) {
 	l2_address l2_addr = l2_get_l2_address_from_physical_address(physical_address);
-	l2_set set = l2->l2_sets[l2_addr.index];
-	
 	printf("-----------------------------------------------------------------\n");
 	printf("BLOCK: ");
 	for(int i=0;i<NO_OF_L2_WAYS;i++) 

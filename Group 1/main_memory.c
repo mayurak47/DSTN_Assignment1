@@ -11,6 +11,9 @@ page_info mm_load_page(unsigned int pid, logical_address_struct la, main_memory_
 void mm_invalidate_page_table_entries(logical_address_struct page_no, unsigned int pid, main_memory_struct *main_memory, kernel_struct *kernel);
 unsigned int mm_convert_back(logical_address_struct la);
 unsigned int mm_check_dirty_bit(unsigned int frame_no, main_memory_struct *main_memory);
+unsigned int mm_replace_page(main_memory_struct** main_memory, kernel_struct *kernel);
+unsigned int mm_avoid_thrashing(int pid, main_memory_struct* main_memory, kernel_struct* kernel);
+
 
 /*
     Input of function - Input is the frame table.
@@ -147,10 +150,6 @@ void mm_initialize_mm(){
 */
 void mm_prefetch_pages(unsigned int pid, FILE* process, main_memory_struct** main_memory, kernel_struct* kernel){
 
-    //Pcb stores the frame number of outer page table of the process.
-    page_info outer_page = kernel->CR3_reg;
-    page_table_struct* outer_page_table = outer_page.page_pointer;
-
     unsigned int prefetch_pages = 0;
 
     //Prefetch two pages.
@@ -257,7 +256,15 @@ page_info mm_new_page_table(unsigned int pid, logical_address_struct la, main_me
     // kernel_struct *kernel = (*main_memory)->frame_table.frame_entry[0].page_pointer;
 
     //Get a new free frame to store the page table.
-    unsigned int free_frame = mm_get_free_frame(main_memory, kernel);
+    unsigned int free_frame;
+
+    int num_pages = kernel_get_number_of_pages(pid, kernel);
+    if(num_pages == MAX_NUMBER_OF_PAGES){
+        free_frame = mm_avoid_thrashing(pid, (*main_memory), kernel);
+    }
+    else{
+        free_frame = mm_get_free_frame(main_memory, kernel);
+    }
 
     //Update the frame table.
     mm_update_frame_table(&(*main_memory)->frame_table, free_frame, pid, 'p', la);
@@ -289,7 +296,14 @@ page_info mm_load_page(unsigned int pid, logical_address_struct la, main_memory_
     frame* new_frame = malloc(sizeof(frame));
 
     //Get a free frame to load the page.
-    unsigned int free_frame = mm_get_free_frame(main_memory, kernel);
+    unsigned int free_frame;
+    int num_pages = kernel_get_number_of_pages(pid, kernel);
+    if(num_pages == MAX_NUMBER_OF_PAGES){
+        free_frame = mm_avoid_thrashing(pid, (*main_memory), kernel);
+    }
+    else{
+        free_frame = mm_get_free_frame(main_memory, kernel);
+    }
 
     //Update the frame table to reflect who is owning this frame.
     mm_update_frame_table(&(*main_memory)->frame_table, free_frame, pid, 'f', la);
@@ -490,10 +504,12 @@ unsigned int mm_replace_page(main_memory_struct **main_memory, kernel_struct* ke
     unsigned int min_counter = __INT32_MAX__;
     unsigned int pid, outer_pt_frame_no;
     logical_address_struct page_no;
+    page_info outer_page;
 
     //Find the frame entry with the least value of counter.
     for(unsigned int frame=1; frame<NO_OF_FRAMES; frame++){
-        if(min_counter > (frame_table.frame_entry[frame].counter & 0xFFFF)){
+        int num_pages = kernel_get_number_of_pages(frame_table.frame_entry[frame].pid, kernel);
+        if(min_counter > (frame_table.frame_entry[frame].counter & 0xFFFF) && num_pages > MIN_NUMBER_OF_PAGES){
             min_counter = (frame_table.frame_entry[frame].counter & 0xFFFF);
             lru_frame = frame;
         }
@@ -501,24 +517,18 @@ unsigned int mm_replace_page(main_memory_struct **main_memory, kernel_struct* ke
 
     pid = frame_table.frame_entry[lru_frame].pid;
     page_no = frame_table.frame_entry[lru_frame].page_no;
+    outer_page = kernel_get_outer_page_table(pid, kernel);
+    outer_pt_frame_no = outer_page.frame_no;
 
     total_access_time += mm_to_swap_space_write_time;
 
     // printf("| Replacing frame = %d |", lru_frame);
 
-    //Check whether the frame we are replacing is dirty or not. If it is dirty, initiate write to disk and clear the dirty bit.
-    if(mm_check_dirty_bit(lru_frame, (*main_memory)) == 1){
-
-        total_access_time += mm_to_disk_write_time;
-
-        mm_write_to_disk(lru_frame, main_memory);
-        (*main_memory)->frame_table.frame_entry[lru_frame].modified = 0;
-    }
-
     //Make that entry in the frame table as invalid and the frame it was pointing to as NULL.
     //The pid is also made as -1. It is used as a delimeter so that we know which entry to invalidate.
     (*main_memory)->frame_table.frame_entry[lru_frame].valid = 0;
     (*main_memory)->frame_table.frame_entry[lru_frame].pid = -1;
+
 
     //Check whether the lru frame contained the outer page table for some other process or not.
     //If it did, then update the pcb of the other process by setting the frame no of outer page table as -1 
@@ -595,7 +605,6 @@ unsigned int mm_check_dirty_bit(unsigned int frame_no, main_memory_struct *main_
 
 */
 void mm_terminate_process(unsigned int pid, main_memory_struct **main_memory, kernel_struct *kernel){
-    free_frames_struct *frames_tail = (*main_memory)->free_frames_head;
 
     //Free all the frames owned by this process and add them to the free frames list.
     for(unsigned int i=0; i<NO_OF_FRAMES; i++){
@@ -621,6 +630,55 @@ void mm_terminate_process(unsigned int pid, main_memory_struct **main_memory, ke
 
 }
 
+
+/*
+    Input of function - Pid of process, main memory structure, kernel structure
+    Purpose of the function - This function is used to avoid thrashing. This function is called when a process tries to load more pages than the maximum allowed number of pages per process.
+    Output/Result of function - This function returns the LRU frame of its own pages held by the process. This will ensure that the process is not allocated more pages than maximum pages allowed per process.
+*/
+unsigned int mm_avoid_thrashing(int pid, main_memory_struct *main_memory, kernel_struct *kernel){
+    frame_table_struct frame_table = main_memory->frame_table;
+    unsigned int lru_frame = 0;
+    unsigned int min_counter = __INT32_MAX__;
+    unsigned int outer_pt_frame_no;
+    logical_address_struct page_no;
+    page_info outer_page;
+
+    //Find the frame entry with the least value of counter.
+    for(unsigned int frame=1; frame<NO_OF_FRAMES; frame++){
+        if(min_counter > (frame_table.frame_entry[frame].counter & 0xFFFF) && pid == (frame_table.frame_entry[frame].pid)){
+            min_counter = (frame_table.frame_entry[frame].counter & 0xFFFF);
+            lru_frame = frame;
+        }
+    }
+
+    page_no = frame_table.frame_entry[lru_frame].page_no;
+    outer_page = kernel_get_outer_page_table(pid, kernel);
+    outer_pt_frame_no = outer_page.frame_no;
+
+    total_access_time += mm_to_swap_space_write_time;
+
+    // printf("| Replacing frame = %d |", lru_frame);
+
+    //Make that entry in the frame table as invalid and the frame it was pointing to as NULL.
+    //The pid is also made as -1. It is used as a delimeter so that we know which entry to invalidate.
+    main_memory->frame_table.frame_entry[lru_frame].valid = 0;
+    main_memory->frame_table.frame_entry[lru_frame].pid = -1;
+
+
+    //Check whether the lru frame contained the outer page table for some other process or not.
+    //If it did, then update the pcb of the other process by setting the frame no of outer page table as -1 
+    if(outer_pt_frame_no == lru_frame){
+        kernel_invalidate_outer_page_table(pid, kernel);
+        return lru_frame;
+    }
+
+    //Else we invalidate the entries in the page tables for the logical address stored in that frame. 
+    mm_invalidate_page_table_entries(page_no, pid, main_memory, kernel);
+
+    return lru_frame;   
+}
+
 /*
     Input of function - Input is the frame number and the main memory.
     Purpose of the function - Writing the contents of the frame back to disk. Modified bit is cleared after writing.
@@ -642,7 +700,6 @@ void mm_write_to_disk(unsigned int frame_no, main_memory_struct **main_memory){
 */
 void mm_write_to_mm(unsigned int physical_address, main_memory_struct **main_memory){
     unsigned int frame_no = physical_address>>10 & 0x3fffff;
-    unsigned int offset = physical_address & 0x3ff;
 
     (*main_memory)->frame_table.frame_entry[frame_no].modified = 1;
 
@@ -655,23 +712,14 @@ void mm_write_to_mm(unsigned int physical_address, main_memory_struct **main_mem
 }
 
 void mm_get_data_from_frame(int physical_address){
-    int frame_no = (physical_address >> 10) & 0x3fffff;
-    int offset = physical_address & 0x3ff;
     
     /*
+        int frame_no = (physical_address >> 10) & 0x3fffff;
+        int offset = physical_address & 0x3ff;
+
         Get data from the frame and put it in the bus32B (the bus between main memory and L2 cache).
     */
 
-}
-
-void mm_clear_mm(main_memory_struct *main_memory){
-    free_frames_struct* frames_tail = main_memory->free_frames_head;
-    while(frames_tail!=NULL){
-        free_frames_struct* temp = frames_tail;
-        frames_tail = frames_tail->next;
-        free(temp);
-    }
-    free(main_memory);
 }
 
 //Convert given logical address into offset, inner bits, middle bits and outer bits

@@ -47,7 +47,7 @@ Main memory - Number of frames = 32768. Hierarchical paging with three level pag
 
 6. functions.h : It contains the declaration of all the functions defined in different programs. These contain the functions of tlb, l1, l2, main memory and the kernel.
 
-7. config.h : Contains the time taken for various transfers and overheads.
+7. config.h : Contains the time taken for various transfers and overheads. All the values are set to 1 but can be changed by going to this file.
 
  C files : 
 
