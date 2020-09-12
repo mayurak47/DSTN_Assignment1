@@ -3,32 +3,32 @@ A memory subsystem simulator implementing a TLB, caches, main memory and page re
 Group 1 and 2
 
 ## GROUP MEMBERS:
-Kevin Boban - 2016A7PS0185G
-Mayur Arvind - 2016B1A70603G
-Amol Pai - 2017A7PS0038G
-Ritvik Agarwal - 2017A7PS0136G
+Kevin Boban - 2016A7PS0185G </br>
+Mayur Arvind - 2016B1A70603G <br/>
+Amol Pai - 2017A7PS0038G <br/>
+Ritvik Agarwal - 2017A7PS0136G <br/>
 
 Also interacted with :
-Aboli Pai (2017A7PS0147G)
-Anurag Madnawat (2017A7PS1923G)
+Aboli Pai (2017A7PS0147G) <br/>
+Anurag Madnawat (2017A7PS1923G) <br/>
 
 ## CONTRIBUTION OF EACH MEMBER:
-Kevin Boban - Implementation of L2 cache structures and functions. (20%)
-Mayur Arvind - Implementation of TLB structures and functions. (20%)
-Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program. (40%)
-Ritvik Agarwal - Implementation of L1 cache and functions. (20%)
+Kevin Boban - Implementation of L2 cache structures and functions. (20%) <br/>
+Mayur Arvind - Implementation of TLB structures and functions. (20%) <br/>
+Amol Pai - Implementation of main memory and kernel structures and functions and the driver cpu program. (40%) <br/>
+Ritvik Agarwal - Implementation of L1 cache and functions. (20%) <br/>
 
 ## DESCRIPTION OF THE PROBLEM:
-TLB - Identifier based TLB. Invalidation occurs at termination of process.
-L1 cache - 4 KB, 16 B, 4 way set associative way prediction cache. Virtually indexed and physically tagged. Implementation is write through and look through. Replacement is LRU square matrix
-L2 cache - 32 KB, 32 B, 8 way set associative cache. Implementation is write back and look aside. Replacement is LRU counter.
-Main memory - 32 MB. Pure paging main memory. Replacement is LRU and global replacement.
+TLB - Identifier based TLB. Invalidation occurs at termination of process. <br/>
+L1 cache - 4 KB, 16 B, 4 way set associative way prediction cache. Virtually indexed and physically tagged. Implementation is write through and look through. Replacement is LRU square matrix. <br/>
+L2 cache - 32 KB, 32 B, 8 way set associative cache. Implementation is write back and look aside. Replacement is LRU counter. <br/>
+Main memory - 32 MB. Pure paging main memory. Replacement is LRU and global replacement. <br/>
 
 ## TECHNICAL DETAILS ABOUT THE STRUCTURES AND ADDRESSES -
-Virtual Address - 32 bits, Physical Address - 25 bits. One page size = 1 KB. 
-TLB - Number of entries = 32. Page no = 22 bits, frame no = 15 bits.
-L1 cache - Number of entries = 64. Number of ways = 4. Tag = 15, Index = 6, Offset = 4.
-L2 cache - Number of entries = 128. Number of ways = 8. Tag = 13, Index = 7, Offset = 5.
+Virtual Address - 32 bits, Physical Address - 25 bits. One page size = 1 KB. <br/>
+TLB - Number of entries = 32. Page no = 22 bits, frame no = 15 bits. <br/>
+L1 cache - Number of entries = 64. Number of ways = 4. Tag = 15, Index = 6, Offset = 4. <br/>
+L2 cache - Number of entries = 128. Number of ways = 8. Tag = 13, Index = 7, Offset = 5. <br/>
 Main memory - Number of frames = 32768. Hierarchical paging with three level page tables. Number of entries in page table = 512. Size of one page table entry = 2B.
 
 ## FILES IN THE DIRECTORY:
@@ -52,18 +52,18 @@ Main memory - Number of frames = 32768. Hierarchical paging with three level pag
 
  C files : 
 
-1. main_memory.c : Contains functions needed for working of main memory.
-2. l1.c : Contains functions needed for working of L1 cache.
-3. l2.c : Contains functions needed for working of L2 cache.
-4. tlb.c : Contains functions needed for working of TLB.
-5. kernel.c : Contains functions needed for kernel. Also contains functions required for simulation.
+1. main_memory.c : Contains functions needed for working of main memory. <br/>
+2. l1.c : Contains functions needed for working of L1 cache. <br/>
+3. l2.c : Contains functions needed for working of L2 cache. <br/>
+4. tlb.c : Contains functions needed for working of TLB. <br/>
+5. kernel.c : Contains functions needed for kernel. Also contains functions required for simulation. <br/>
 6. cpu.c : The driver program which does the simulation. This program calls the functions defined in the above programs. 
 
  Input and output files :
 
-1. input.txt : It contains the number of processes and the names of all processes.
-2. output_rates.txt and output_times.txt : It contains the output of the simulation. The details in the output file is given below.
-3. APSI.txt, CC1.txt, LI.txt, M88KSIM.txt, VORTEX.txt : The process files. These files contains the virtual addresses accessed by the process.
+1. input.txt : It contains the number of processes and the names of all processes. <br/>
+2. output_rates.txt and output_times.txt : It contains the output of the simulation. The details in the output file is given below. <br/>
+3. APSI.txt, CC1.txt, LI.txt, M88KSIM.txt, VORTEX.txt : The process files. These files contains the virtual addresses accessed by the process. <br/>
 
 
 ## COMPILING THE PROGRAM
@@ -74,15 +74,11 @@ Command : `make` or `make all`
 Command : `./test input.txt`
 
 ## STRUCTURE OF PROGRAM:
-   PROCESSOR
-   
-   TLB
-   
-L1 DATA		L1 INSTRUCTION
-
-   L2 CACHE
-   
-   MAIN MEMORY
+   PROCESSOR <br/>
+   TLB <br/>
+L1 DATA		L1 INSTRUCTION <br/>
+   L2 CACHE <br/>
+   MAIN MEMORY <br/>
 	
 The cpu program takes the inputs of the processes. Two pages of each process is prefetched in main memory. Then, the cpu calls a function in the kernel which executes this process's request.
 The flowchart of the execution is as follows :
