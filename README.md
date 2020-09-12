@@ -1,5 +1,5 @@
 # DSTN ASSIGNMENT 1
-A memory subsystem simulator implementing a TLB, caches, main memory and page replacement algorithms
+A memory subsystem simulator implementing a TLB, caches, main memory and page replacement algorithms <br/>
 Group 1 and 2
 
 ## GROUP MEMBERS:
