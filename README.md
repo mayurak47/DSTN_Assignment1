@@ -74,11 +74,11 @@ Command : `make` or `make all`
 Command : `./test input.txt`
 
 ## STRUCTURE OF PROGRAM:
-	PROCESSOR
-	   TLB
-L1 DATA		L1 INSTRUCTION
-	 L2 CACHE
-	MAIN MEMORY
+   PROCESSOR
+   TLB
+L1 DATA   L1 INSTRUCTION
+   L2 CACHE
+   MAIN MEMORY
 	
 The cpu program takes the inputs of the processes. Two pages of each process is prefetched in main memory. Then, the cpu calls a function in the kernel which executes this process's request.
 The flowchart of the execution is as follows :
@@ -110,6 +110,6 @@ output_times.txt stores the detailed information about each instruction executed
 6. Whether the cpu is writing to l1 or not.
 
 ## COMPLETION OF ASSIGNMENT:
-	We have completed all the required tasks asked in the question that we know of. 
-	We have also tried our level best to debug our code and eliminate them.
-	The code does not contain any compile time errors, run time errors or bugs.
+We have completed all the required tasks asked in the question that we know of. 
+We have also tried our level best to debug our code and eliminate them.
+The code does not contain any compile time errors, run time errors or bugs.
