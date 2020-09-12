@@ -8,7 +8,7 @@ Mayur Arvind - 2016B1A70603G <br/>
 Amol Pai - 2017A7PS0038G <br/>
 Ritvik Agarwal - 2017A7PS0136G <br/>
 
-Also interacted with :
+Also interacted with : </br>
 Aboli Pai (2017A7PS0147G) <br/>
 Anurag Madnawat (2017A7PS1923G) <br/>
 
