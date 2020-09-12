@@ -78,7 +78,7 @@ Command : `./test input.txt`
    
    TLB
    
-L1 DATA   L1 INSTRUCTION
+L1 DATA		L1 INSTRUCTION
 
    L2 CACHE
    
