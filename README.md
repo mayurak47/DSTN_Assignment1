@@ -75,9 +75,13 @@ Command : `./test input.txt`
 
 ## STRUCTURE OF PROGRAM:
    PROCESSOR
+   
    TLB
+   
 L1 DATA   L1 INSTRUCTION
+
    L2 CACHE
+   
    MAIN MEMORY
 	
 The cpu program takes the inputs of the processes. Two pages of each process is prefetched in main memory. Then, the cpu calls a function in the kernel which executes this process's request.
